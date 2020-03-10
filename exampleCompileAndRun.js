@@ -4,7 +4,7 @@ const javaCode = require('./exampleJavaCode')
 
 const compileAndRun = require('./compileAndRun')
 
-compileAndRun(fileName, examplesClasses, javaCode)
+compileAndRun(fileName, examplesClasses, javaCode, 'room1342')
   .then(out => console.log(out))
   .catch()
 /*

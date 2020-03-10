@@ -55,7 +55,7 @@ class ExamplesFoo {
     })
 
     axios
-      .post('http://localhost:5000/api/compile/java', {
+      .post('https://fundies.herokuapp.com/api/compile/java', {
         fileName: this.state.fileName,
         examplesClasses: this.state.examplesClasses,
         javaCode: this.state.javaCode
