@@ -8,10 +8,6 @@ const rateLimit = require('express-rate-limit')
 const app = express()
 const port = process.env.PORT || 5000
 
-if (process.env.HEROKU == 'true') {
-  app.set('trust proxy', 1)
-}
-
 //https://i.redd.it/nu8nm8h1bvc41.jpg
 const apiLimiter = rateLimit({
   windowMs: 1000 * 60, // 1 minute

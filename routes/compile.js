@@ -1,13 +1,13 @@
 const router = require('express').Router()
 const compileAndRun = require('../compileAndRun')
-router.route('/java').post((req, res) => {
-  console.log(req.body)
+const uuid = require('uuid')
 
+router.route('/java').post((req, res) => {
   const fileName = req.body.fileName
   const examplesClasses = req.body.examplesClasses
   const javaCode = req.body.javaCode
 
-  compileAndRun(fileName, examplesClasses, javaCode)
+  compileAndRun(fileName, examplesClasses, javaCode, 'room-' + uuid.v4())
     .then(out => res.json(out))
     .catch(err => {
       console.log(err)

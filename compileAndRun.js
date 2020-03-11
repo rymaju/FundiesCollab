@@ -7,7 +7,7 @@ const { execFile, exec } = require('child_process')
 // compileAndRun : String [List-of String] String -> [Promise String]
 function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
   return new Promise(function (resolve, reject) {
-    exec('mkdir ' + roomId, (error, stdout, stderr) => {
+    exec('mkdir ' + roomId, { timeout: 1000 }, (error, stdout, stderr) => {
       fs.writeFile(roomId + '/' + fileName, javaCode, function (err) {
         if (err) {
           reject(err)
@@ -16,7 +16,14 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
 
         execFile(
           'javac',
-          ['-cp', 'tester.jar', '-d', './' + roomId, './' + roomId + '/' + fileName],
+          [
+            '-cp',
+            '.;tester.jar;javalib.jar',
+            '-d',
+            './' + roomId,
+            './' + roomId + '/' + fileName
+          ],
+          { timeout: 5000 },
           (error, stdout, stderr) => {
             if (error) {
               resolve(stderr)
@@ -28,14 +35,15 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
               'java',
               [
                 '-classpath',
-                './' + roomId + ';tester.jar;',
+                './' + roomId + ';tester.jar;javalib.jar',
                 'tester.Main'
               ].concat(examplesClasses),
+              { timeout: 5000 },
               (error, stdout, stderr) => {
                 if (error) {
                   resolve(stderr)
                 }
-
+                console.log('run complete returning response...')
                 resolve(stdout)
               }
             )
