@@ -22,6 +22,9 @@ require('codemirror/addon/search/match-highlighter')
 
 require('codemirror/mode/clike/clike')
 
+const io = require('socket.io-client')
+const socket = io()
+
 class IDE extends Component {
   constructor () {
     super()
@@ -63,11 +66,16 @@ class ExamplesFoo {
 `,
       output: '',
       disableButton: false,
-      roomId: '1234',
+      roomId: '',
       keyPressState: false,
       saved: false,
       saveDateTime: 'Never'
     }
+
+    socket.on('sync code', payload => {
+      console.log(payload)
+      this.setState({ javaCode: payload.newCode })
+    })
 
     this.handleFileChange = this.handleFileChange.bind(this)
     this.handleExamplesChange = this.handleExamplesChange.bind(this)
@@ -218,6 +226,16 @@ class ExamplesFoo {
 
   componentDidMount () {
     this.loadFromLocalStorage()
+    this.setState({ roomId: this.props.match.params.id }, () => {
+      socket.emit('join room', { room: this.state.roomId })
+      console.log(this.state.roomId)
+    })
+  }
+
+  componentWillUnmount () {
+    socket.emit('leave room', {
+      room: this.state.roomId
+    })
   }
 
   render () {
@@ -291,6 +309,11 @@ class ExamplesFoo {
               value={this.state.javaCode}
               onBeforeChange={(editor, data, value) => {
                 this.setState({ javaCode: value, saved: false })
+
+                socket.emit('send code', {
+                  room: this.state.roomId,
+                  newCode: value
+                })
               }}
               onChange={(editor, data, value) => {}}
               options={{
