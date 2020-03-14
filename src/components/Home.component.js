@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Jumbotron, Button, Container, Row, Col, Input } from 'reactstrap'
-import checkmark from '../check-plus.png'
 const Haikunator = require('haikunator')
 const haikunator = new Haikunator()
 
@@ -17,7 +16,12 @@ class Home extends Component {
           <Container>
             <div className='d-flex flex-row'>
               <h1 className='display-3'>FundiesCollab</h1>{' '}
-              <img className='ml-3' height={`90px`} src={checkmark} alt='' />
+              <img
+                className='ml-3'
+                height={`90px`}
+                src={'/check-plus.png'}
+                alt=''
+              />
             </div>
             <p className='lead'>
               Collaborative Real-Time coding in Java using the Fundies 2 Tester
@@ -43,7 +47,8 @@ class Home extends Component {
                 time on the same document. Coding partners can remotely
                 contribute to a single file and easily share code. No more
                 messing around with git or inconvient forms of file sharing,
-                simply work together and download the code you have written.
+                simply open up your browser to start working together and
+                download your code when you're done.
               </p>
             </Col>
             <Col>

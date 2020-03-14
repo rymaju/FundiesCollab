@@ -16,8 +16,14 @@ import {
   Input,
   Row,
   Col,
-  UncontrolledAlert
+  UncontrolledAlert,
+  InputGroup,
+  InputGroupText,
+  InputGroupAddon
 } from 'reactstrap'
+import { Helmet } from 'react-helmet'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+
 const fileDownload = require('js-file-download')
 
 require('./custom-codemirror.css')
@@ -73,12 +79,12 @@ class ExamplesFoo {
     t.checkExpect(new Foo(4, 56).add(), 60);
     t.checkExpect(new Foo(1, 2).render(), new CircleImage(10, OutlineMode.SOLID, Color.PINK));
     // Fail
-    t.checkExpect(new Foo(1, 2).render(), new CircleImage(11, OutlineMode.SOLID, Color.YELLOW));
+    t.checkExpect(new Foo(1, 2).add(), 4);
   }
 }
 
 `,
-      output: '',
+      output: `Press "Compile" or hit Ctrl+R to run your code!`,
       disableButton: false,
       roomId: '',
       keyPressState: false,
@@ -198,61 +204,82 @@ class ExamplesFoo {
 
   render () {
     return (
-      <div className={this.state.style.IDEContainer}>
-        <Col>
-          <Row>
-            <Col>
-              <Row>
-                <Col xs='5'>
-                  <Label className={this.state.style.text}>Name </Label>
-                  <Input
-                    className={this.state.style.containerColor}
-                    id='file'
-                    size='20'
-                    type='text'
-                    onChange={this.handleFileChange}
-                    value={this.state.fileName}
-                    spellCheck='false'
-                  />
-                </Col>
-                <Col xs='7'>
-                  <Label className={this.state.style.text}>Examples </Label>
-                  <Input
-                    className={this.state.style.containerColor}
-                    id='file'
-                    size='40'
-                    type='text'
-                    onChange={this.handleExamplesChange}
-                    value={this.state.examplesClasses}
-                    spellCheck='false'
-                  />
-                </Col>
-              </Row>
-              <Row>
-                <Col className={`mt-2`}>
-                  <ButtonGroup
+      <div>
+        <Helmet>
+          <title>FundiesCollab | {this.state.roomId}</title>
+        </Helmet>
+
+        <div className={this.state.style.IDEContainer}>
+          <Col>
+            <Row>
+              <Col>
+                <UncontrolledAlert size='sm' color='danger'>
+                  Rooms automatically save your work. However, after 7 days of
+                  inactivity your room will be deleted, so remember to download
+                  your code when you're done!
+                </UncontrolledAlert>
+                <Row>
+                  <Col xs='5'>
+                    <Label className={this.state.style.text}>Name </Label>
+                    <Input
+                      id='file'
+                      size='20'
+                      type='text'
+                      onChange={this.handleFileChange}
+                      value={this.state.fileName}
+                      spellCheck='false'
+                    />
+                  </Col>
+                  <Col xs='7'>
+                    <Label className={this.state.style.text}>Examples </Label>
+                    <Input
+                      id='file'
+                      size='40'
+                      type='text'
+                      onChange={this.handleExamplesChange}
+                      value={this.state.examplesClasses}
+                      spellCheck='false'
+                    />
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md='7' className='pr-2'>
+                <div className='d-flex justify-content-between mt-3 mb-3'>
+                  <div
+                    className='d-flex flex-row'
                     style={{
-                      marginBottom: '10px'
+                      height: '40px'
                     }}
                   >
-                    <Button
-                      color='success'
-                      size='sm'
-                      disabled={this.state.disableButton}
-                      onClick={() => this.compile()}
-                    >
-                      Compile
-                    </Button>
+                    <ButtonGroup>
+                      <Button
+                        color='success'
+                        size='sm'
+                        disabled={this.state.disableButton}
+                        onClick={() => this.compile()}
+                        style={{
+                          width: '80px'
+                        }}
+                      >
+                        Compile
+                      </Button>
 
-                    <Button
-                      outline
-                      color='success'
-                      size='sm'
-                      disabled={this.state.disableButton}
-                      onClick={() => this.download()}
-                    >
-                      Download Code
-                    </Button>
+                      <Button
+                        outline
+                        color='success'
+                        size='sm'
+                        disabled={this.state.disableButton}
+                        onClick={() => this.download()}
+                        style={{
+                          width: '125px'
+                        }}
+                      >
+                        Download Code
+                      </Button>
+                    </ButtonGroup>
                     <select
                       style={{
                         marginLeft: '5px',
@@ -281,104 +308,85 @@ class ExamplesFoo {
                         Palenight
                       </option>={' '}
                     </select>
-                  </ButtonGroup>
+                  </div>
                   {this.state.disableButton && (
-                    <span
-                      style={{
-                        marginLeft: '10px'
-                      }}
-                    >
-                      <Spinner
-                        style={{
-                          marginLeft: '10px',
-                          width: '25px',
-                          height: '25px'
-                        }}
-                        color='primary'
-                        type='grow'
-                      />
-                      <Spinner
-                        style={{
-                          marginLeft: '10px',
-                          width: '25px',
-                          height: '25px'
-                        }}
-                        color='primary'
-                        type='grow'
-                      />
-                      <Spinner
-                        style={{
-                          marginLeft: '10px',
-                          width: '25px',
-                          height: '25px'
-                        }}
-                        color='primary'
-                        type='grow'
-                      />
-                    </span>
+                    <Spinner size='md' color='primary' />
                   )}
-                  <UncontrolledAlert size='sm' color='danger'>
-                    Rooms automatically save your work. However, after 7 days of
-                    inactivity your room will be deleted, so remember to
-                    download your code when you're done!
-                  </UncontrolledAlert>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
+                </div>
+                <CodeMirror
+                  value={this.state.javaCode}
+                  onBeforeChange={this.handleCodeChange}
+                  onChange={(editor, data, value) => {}}
+                  options={{
+                    scrollbarStyle: null,
+                    lineNumbers: true,
+                    rulers: [
+                      { color: '#007BFF', column: 100, lineStyle: 'dashed' }
+                    ],
 
-          <Row>
-            <Col xs='7' className={`pr-2`}>
-              <CodeMirror
-                value={this.state.javaCode}
-                onBeforeChange={this.handleCodeChange}
-                onChange={(editor, data, value) => {}}
-                options={{
-                  scrollbarStyle: null,
-                  lineNumbers: true,
-                  rulers: [
-                    { color: '#007BFF', column: 100, lineStyle: 'dashed' }
-                  ],
+                    mode: 'text/x-java',
+                    matchBrackets: true,
+                    autoCloseBrackets: true,
+                    showHint: {
+                      hint: anyword
+                    },
+                    theme: this.state.theme,
+                    styleActiveLine: true,
+                    highlightSelectionMatches: true
+                  }}
+                />
+              </Col>
+              <Col md='5' className={`pl-2`}>
+                <div className='d-flex flex-row mt-3 mb-3'>
+                  <InputGroup size='sm'>
+                    <Input
+                      readOnly='true'
+                      style={{ height: '40px' }}
+                      value={`FundiesCollab.com${this.props.location.pathname}`}
+                    />
+                    <InputGroupAddon addonType='append'>
+                      <CopyToClipboard
+                        text={`FundiesCollab.com${this.props.location.pathname}`}
+                      >
+                        <Button color='primary' size='sm'>
+                          Copy Link
+                        </Button>
+                      </CopyToClipboard>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </div>
+                <CodeMirror
+                  value={this.state.output}
+                  options={{
+                    lineWrapping: true,
+                    readOnly: 'nocursor',
+                    scrollbarStyle: null,
+                    theme: this.state.theme
+                  }}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <p className={`${this.state.style.text} mt-3`}>
+                  <i>FundiesCollab v1.0 </i>
+                  {`©${new Date().getFullYear()}`}
+                  <p>Created by Ryan Jung @ Northeastern University</p>
 
-                  mode: 'text/x-java',
-                  matchBrackets: true,
-                  autoCloseBrackets: true,
-                  showHint: {
-                    hint: anyword
-                  },
-                  theme: this.state.theme,
-                  styleActiveLine: true,
-                  highlightSelectionMatches: true
-                }}
-              />
-              <p className={this.state.style.text}>
-                <i>
-                  Online compiler does not support bigBang, download the .java
-                  file and run in Eclipse.
-                </i>
-                <br />
-              </p>
-            </Col>
-            <Col xs='5' className={`pl-2`}>
-              <CodeMirror
-                value={this.state.output}
-                options={{
-                  lineWrapping: true,
-                  readOnly: 'nocursor',
-                  scrollbarStyle: null,
-                  theme: this.state.theme
-                }}
-              />
-              <p className={this.state.style.text}>
-                <i>Press Ctrl+R to Compile & Run</i>
-              </p>
-            </Col>
-          </Row>
-          <Row>
-            <Col></Col>
-            <Col></Col>
-          </Row>
-        </Col>
+                  <a href='https://github.com/rymaju/FundiesCollab'>Github</a>
+                  {' | '}
+                  <a href='https://course.ccs.neu.edu/cs2510/Documentation.html'>
+                    Image & Tester Library Docs
+                  </a>
+                  {' | '}
+                  <a href='https://course.ccs.neu.edu/cs2510/'>
+                    Fundies 2 Homepage
+                  </a>
+                </p>{' '}
+              </Col>
+            </Row>
+          </Col>
+        </div>
       </div>
     )
   }
