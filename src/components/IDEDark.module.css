@@ -1,0 +1,21 @@
+.IDEContainer {
+  padding: 40px;
+
+  background-color: #1d1d1f;
+}
+
+.text {
+  color: #f8f9fa;
+  font-weight: 300;
+}
+
+.containerColor {
+  background-color: #1d1d1f;
+  color: #f8f9fa;
+  font-weight: 300;
+}
+
+.containerColor :active {
+  background-color: #1d1d1f;
+  color: #f8f9fa;
+}

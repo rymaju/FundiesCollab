@@ -5,6 +5,19 @@ import '../theme/eclipse.css'
 import '../theme/dracula.css'
 import '../theme/material-palenight.css'
 
+import lightMode from './IDELight.module.css'
+import darkMode from './IDEDark.module.css'
+
+import {
+  Button,
+  ButtonGroup,
+  Spinner,
+  Label,
+  Input,
+  Row,
+  Col,
+  UncontrolledAlert
+} from 'reactstrap'
 const fileDownload = require('js-file-download')
 
 require('./custom-codemirror.css')
@@ -28,6 +41,7 @@ const socket = io()
 class IDE extends Component {
   constructor () {
     super()
+
     this.state = {
       fileName: 'Foo.java',
       examplesClasses: ['ExamplesFoo'],
@@ -68,8 +82,8 @@ class ExamplesFoo {
       disableButton: false,
       roomId: '',
       keyPressState: false,
-      saved: false,
-      saveDateTime: 'Never'
+      theme: 'eclipse',
+      style: lightMode
     }
 
     socket.on('sync code', payload => {
@@ -81,13 +95,9 @@ class ExamplesFoo {
     this.handleExamplesChange = this.handleExamplesChange.bind(this)
     this.handleCodeChange = this.handleCodeChange.bind(this)
     this.compile = this.compile.bind(this)
-    this.loadFromLocalStorage = this.loadFromLocalStorage.bind(this)
-    this.getCodeFromLocalStorage = this.getCodeFromLocalStorage.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleKeyUp = this.handleKeyUp.bind(this)
     this.download = this.download.bind(this)
-
-    this.saveToLocalStorage = this.saveToLocalStorage.bind(this)
     this.componentDidMount = this.componentDidMount.bind(this)
 
     document.body.addEventListener('keydown', this.handleKeyDown)
@@ -102,20 +112,12 @@ class ExamplesFoo {
     this.setState({ examplesClasses: event.target.value.split(' ') })
     //console.log(this.state)
   }
-  handleCodeChange (newCode) {
-    this.setState({ javaCode: newCode, saved: false })
-  }
+  handleCodeChange (editor, data, value) {
+    this.setState({ javaCode: value })
 
-  saveToLocalStorage () {
-    const { fileName, examplesClasses, javaCode, roomId } = this.state
-    localStorage.setItem('fileName', fileName)
-    localStorage.setItem('examplesClasses', examplesClasses)
-    localStorage.setItem('javaCode', javaCode)
-    localStorage.setItem('roomId', roomId)
-    console.log('saving')
-    this.setState({
-      saved: true,
-      saveDateTime: new Date().toLocaleString()
+    socket.emit('send code', {
+      room: this.state.roomId,
+      newCode: value
     })
   }
 
@@ -123,63 +125,18 @@ class ExamplesFoo {
     fileDownload(this.state.javaCode, this.state.fileName)
   }
 
-  loadFromLocalStorage () {
-    if (this.state.roomId !== localStorage.getItem('roomId')) {
-      // wrong room
-      return
-    }
-    const storedFileName = localStorage.getItem('fileName')
-    const storedExamplesClasses = localStorage.getItem('examplesClasses')
-    const storedJavaCode = localStorage.getItem('javaCode')
-
-    if (storedFileName !== null) {
-      this.setState({ fileName: storedFileName })
-      console.log('set file')
-    }
-    if (storedExamplesClasses !== null) {
-      this.setState({ examplesClasses: storedExamplesClasses })
-      console.log('set examples')
-    }
-    if (storedJavaCode !== null) {
-      this.setState({
-        javaCode: storedJavaCode,
-        saved: true,
-        saveDateTime: new Date().toLocaleString()
-      })
-    }
-  }
-
-  getCodeFromLocalStorage () {
-    if (
-      this.state.roomId !== localStorage.getItem('roomId') ||
-      this.state.javaCode === localStorage.getItem('javaCode')
-    ) {
-      return this.state.javaCode
-    }
-    const storedJavaCode = localStorage.getItem('javaCode')
-    console.log(storedJavaCode)
-    if (storedJavaCode) {
-      this.setState({ javaCode: storedJavaCode })
-      return storedJavaCode
-    } else {
-      return this.state.javaCode
-    }
-  }
-
   handleKeyDown (e) {
     if (this.state.keyPressState && e.keyCode === 83) {
       e.preventDefault()
-      this.saveToLocalStorage()
     } else if (this.state.keyPressState && e.keyCode === 82) {
       e.preventDefault()
-
       this.compile()
-    } else if (e.keyCode === 17 || 91) {
+    } else if (e.keyCode === 17 || e.keyCode === 91) {
       this.setState({ keyPressState: true })
     }
   }
   handleKeyUp (e) {
-    if (e.keyCode === 17 || 91) {
+    if (e.keyCode === 17 || e.keyCode === 91) {
       this.setState({ keyPressState: false })
     }
   }
@@ -196,7 +153,8 @@ class ExamplesFoo {
       .post('http://localhost:5000/api/compile/java', {
         fileName: this.state.fileName,
         examplesClasses: this.state.examplesClasses,
-        javaCode: this.state.javaCode
+        javaCode: this.state.javaCode,
+        roomId: this.state.roomId
       })
       .then(response => {
         console.log(response.data)
@@ -225,11 +183,11 @@ class ExamplesFoo {
   }
 
   componentDidMount () {
-    this.loadFromLocalStorage()
     this.setState({ roomId: this.props.match.params.id }, () => {
       socket.emit('join room', { room: this.state.roomId })
       console.log(this.state.roomId)
     })
+    console.log(this.props)
   }
 
   componentWillUnmount () {
@@ -240,128 +198,187 @@ class ExamplesFoo {
 
   render () {
     return (
-      <div
-        style={{
-          margin: '40px',
-          display: 'grid',
-          gridTemplateColumns: ' 50vw 40vw',
-          gridGap: '10px',
-          justifyContent: 'center'
-        }}
-      >
-        <div id='interactive'>
-          <div>
-            <span>
-              <label>Name </label>
-              <input
-                id='file'
-                size='20'
-                type='text'
-                onChange={this.handleFileChange}
-                value={this.state.fileName}
-                spellCheck='false'
-              ></input>
-            </span>
-            <span
-              style={{
-                margin: '10px'
-              }}
-            >
-              <label>Examples </label>
-              <input
-                id='file'
-                size='40'
-                type='text'
-                onChange={this.handleExamplesChange}
-                value={this.state.examplesClasses}
-                spellCheck='false'
-              ></input>
-            </span>
-          </div>
+      <div className={this.state.style.IDEContainer}>
+        <Col>
+          <Row>
+            <Col>
+              <Row>
+                <Col xs='5'>
+                  <Label className={this.state.style.text}>Name </Label>
+                  <Input
+                    className={this.state.style.containerColor}
+                    id='file'
+                    size='20'
+                    type='text'
+                    onChange={this.handleFileChange}
+                    value={this.state.fileName}
+                    spellCheck='false'
+                  />
+                </Col>
+                <Col xs='7'>
+                  <Label className={this.state.style.text}>Examples </Label>
+                  <Input
+                    className={this.state.style.containerColor}
+                    id='file'
+                    size='40'
+                    type='text'
+                    onChange={this.handleExamplesChange}
+                    value={this.state.examplesClasses}
+                    spellCheck='false'
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col className={`mt-2`}>
+                  <ButtonGroup
+                    style={{
+                      marginBottom: '10px'
+                    }}
+                  >
+                    <Button
+                      color='success'
+                      size='sm'
+                      disabled={this.state.disableButton}
+                      onClick={() => this.compile()}
+                    >
+                      Compile
+                    </Button>
 
-          <div
-            style={{
-              marginTop: '10px'
-            }}
-          >
-            <button
-              disabled={this.state.disableButton}
-              onClick={() => this.compile()}
-            >
-              Compile
-            </button>
+                    <Button
+                      outline
+                      color='success'
+                      size='sm'
+                      disabled={this.state.disableButton}
+                      onClick={() => this.download()}
+                    >
+                      Download Code
+                    </Button>
+                    <select
+                      style={{
+                        marginLeft: '5px',
+                        fontSize: '15px',
+                        borderColor: '#007bff',
+                        fontWeight: '400',
+                        borderRadius: '2px',
+                        color: '#007bff'
+                      }}
+                      className={this.state.style.containerColor}
+                      onChange={event => {
+                        const themeName = event.target.value
+                        this.setState({ theme: event.target.value })
+                        if (themeName === 'eclipse') {
+                          this.setState({ style: lightMode })
+                        } else {
+                          this.setState({ style: darkMode })
+                        }
+                      }}
+                    >
+                      <option value='eclipse' defaultValue>
+                        Eclipse
+                      </option>
+                      <option value='dracula'>Dracula</option>
+                      <option value='material-palenight'>
+                        Palenight
+                      </option>={' '}
+                    </select>
+                  </ButtonGroup>
+                  {this.state.disableButton && (
+                    <span
+                      style={{
+                        marginLeft: '10px'
+                      }}
+                    >
+                      <Spinner
+                        style={{
+                          marginLeft: '10px',
+                          width: '25px',
+                          height: '25px'
+                        }}
+                        color='primary'
+                        type='grow'
+                      />
+                      <Spinner
+                        style={{
+                          marginLeft: '10px',
+                          width: '25px',
+                          height: '25px'
+                        }}
+                        color='primary'
+                        type='grow'
+                      />
+                      <Spinner
+                        style={{
+                          marginLeft: '10px',
+                          width: '25px',
+                          height: '25px'
+                        }}
+                        color='primary'
+                        type='grow'
+                      />
+                    </span>
+                  )}
+                  <UncontrolledAlert size='sm' color='danger'>
+                    Rooms automatically save your work. However, after 7 days of
+                    inactivity your room will be deleted, so remember to
+                    download your code when you're done!
+                  </UncontrolledAlert>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
 
-            <button
-              disabled={this.state.disableButton}
-              onClick={() => this.download()}
-            >
-              Download Code
-            </button>
+          <Row>
+            <Col xs='7' className={`pr-2`}>
+              <CodeMirror
+                value={this.state.javaCode}
+                onBeforeChange={this.handleCodeChange}
+                onChange={(editor, data, value) => {}}
+                options={{
+                  scrollbarStyle: null,
+                  lineNumbers: true,
+                  rulers: [
+                    { color: '#007BFF', column: 100, lineStyle: 'dashed' }
+                  ],
 
-            <button
-              disabled={this.state.disableButton}
-              onClick={() => this.saveToLocalStorage()}
-            >
-              Save to LocalStorage
-            </button>
-
-            <CodeMirror
-              value={this.state.javaCode}
-              onBeforeChange={(editor, data, value) => {
-                this.setState({ javaCode: value, saved: false })
-
-                socket.emit('send code', {
-                  room: this.state.roomId,
-                  newCode: value
-                })
-              }}
-              onChange={(editor, data, value) => {}}
-              options={{
-                lineNumbers: true,
-                rulers: [{ color: '#ccc', column: 100, lineStyle: 'dashed' }],
-
-                mode: 'text/x-java',
-                matchBrackets: true,
-                autoCloseBrackets: true,
-                showHint: {
-                  hint: anyword
-                },
-                theme: 'eclipse',
-                styleActiveLine: true,
-                highlightSelectionMatches: true
-              }}
-            />
-          </div>
-          <p>
-            <i>
-              Online compiler does not support bigBang, download the .java file
-              and run in Eclipse.
-            </i>
-          </p>
-          <p>Ctrl+S to Save, Ctrl+R to Compile & Run</p>
-        </div>
-
-        <div id='output' style={{}}>
-          <p>
-            {!this.state.saved
-              ? 'Last saved: ' + this.state.saveDateTime
-              : 'Saved and up to date as of ' + this.state.saveDateTime + ''}
-          </p>
-          <p
-            style={{
-              whiteSpace: 'pre-wrap',
-              margin: '0',
-              border: '2px dashed #ccc ',
-              padding: '10px',
-              fontFamily: 'monospace',
-              fontSize: '13px',
-              minHeight: '70vh',
-              height: 'auto'
-            }}
-          >
-            {this.state.output}
-          </p>
-        </div>
+                  mode: 'text/x-java',
+                  matchBrackets: true,
+                  autoCloseBrackets: true,
+                  showHint: {
+                    hint: anyword
+                  },
+                  theme: this.state.theme,
+                  styleActiveLine: true,
+                  highlightSelectionMatches: true
+                }}
+              />
+              <p className={this.state.style.text}>
+                <i>
+                  Online compiler does not support bigBang, download the .java
+                  file and run in Eclipse.
+                </i>
+                <br />
+              </p>
+            </Col>
+            <Col xs='5' className={`pl-2`}>
+              <CodeMirror
+                value={this.state.output}
+                options={{
+                  lineWrapping: true,
+                  readOnly: 'nocursor',
+                  scrollbarStyle: null,
+                  theme: this.state.theme
+                }}
+              />
+              <p className={this.state.style.text}>
+                <i>Press Ctrl+R to Compile & Run</i>
+              </p>
+            </Col>
+          </Row>
+          <Row>
+            <Col></Col>
+            <Col></Col>
+          </Row>
+        </Col>
       </div>
     )
   }

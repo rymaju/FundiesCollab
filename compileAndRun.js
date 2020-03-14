@@ -7,7 +7,7 @@ const { execFile, exec } = require('child_process')
 // compileAndRun : String [List-of String] String -> [Promise String]
 function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
   return new Promise(function (resolve, reject) {
-    exec('mkdir ' + roomId, { timeout: 1000 }, (error, stdout, stderr) => {
+    exec('mkdir ' + roomId, { timeout: 10000 }, (error, stdout, stderr) => {
       fs.writeFile(roomId + '/' + fileName, javaCode, function (err) {
         if (err) {
           reject(err)
@@ -23,7 +23,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
             './' + roomId,
             './' + roomId + '/' + fileName
           ],
-          { timeout: 5000 },
+          { timeout: 10000 },
           (error, stdout, stderr) => {
             if (error) {
               resolve(stderr)
@@ -38,7 +38,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
                 './' + roomId + ';tester.jar;javalib.jar',
                 'tester.Main'
               ].concat(examplesClasses),
-              { timeout: 5000 },
+              { timeout: 10000 },
               (error, stdout, stderr) => {
                 if (error) {
                   resolve(stderr)

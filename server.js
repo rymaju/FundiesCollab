@@ -4,6 +4,7 @@ const path = require('path')
 const socketIO = require('socket.io')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
+const deleteRoom = require('./deleteRoom')
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -50,10 +51,14 @@ io.on('connection', socket => {
     socket.join(data.room)
     if (roomData[data.room]) {
       console.log('sending')
-      io.in(data.room).emit('sync code', { newCode: roomData[data.room] })
+      io.to(`${socket.id}`).emit('sync code', {
+        newCode: roomData[data.room].code
+      })
+      roomData[data.room] = {
+        code: roomData[data.room].code,
+        lastActiveDateTime: new Date()
+      }
     }
-
-    console.log(roomData)
   })
 
   socket.on('leave room', data => {
@@ -61,7 +66,35 @@ io.on('connection', socket => {
   })
 
   socket.on('send code', function (data) {
-    roomData[data.room] = data.newCode
+    roomData[data.room] = {
+      code: data.newCode,
+      lastActiveDateTime: new Date()
+    }
     socket.broadcast.to(data.room).emit('sync code', data)
   })
 })
+
+var CronJob = require('cron').CronJob
+var job = new CronJob(
+  '0 0 0 * * *',
+  function () {
+    console.log('running cron job')
+    var oneWeekAgo = new Date()
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+    for (let roomId in roomData) {
+      if (roomData.hasOwnProperty(roomId) && roomData[roomId] !== undefined) {
+        const date = roomData[roomId].lastActiveDateTime
+        if (oneWeekAgo > date) {
+          delete roomData[roomId]
+          deleteRoom(roomId)
+          console.log('deleted room ' + roomId)
+        }
+      }
+    }
+  },
+  null,
+  true,
+  'America/Los_Angeles'
+)
+job.start()

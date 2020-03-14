@@ -1,13 +1,8 @@
 import React from 'react'
 import './App.css'
-import {
-  Router,
-  Route,
-  Link,
-  BrowserRouter,
-  Redirect,
-  Switch
-} from 'react-router-dom'
+import { Route, BrowserRouter, Switch } from 'react-router-dom'
+
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 import IDE from './components/IDE.component'
 import NotFound from './components/NotFound.component'

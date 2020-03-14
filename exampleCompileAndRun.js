@@ -4,9 +4,7 @@ const javaCode = require('./exampleJavaCode')
 
 const compileAndRun = require('./compileAndRun')
 
-const uuid = require('uuid')
-
-compileAndRun(fileName, examplesClasses, javaCode, 'room-' + uuid.v4())
+compileAndRun(fileName, examplesClasses, javaCode, 'room-huffman')
   .then(out => console.log(out))
   .catch()
 /*
