@@ -115,7 +115,7 @@ class Room extends Component {
     //console.log(this.state.javaCode)
 
     axios
-      .post('https://fundiescollab.com/api/compile/java', {
+      .post('http://localhost:5000/api/compile/java', {
         fileName: this.state.fileName,
         examplesClasses: this.state.examplesClasses,
         javaCode: this.state.javaCode,

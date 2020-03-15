@@ -18,7 +18,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
           'javac',
           [
             '-cp',
-            '.:tester.jar:javalib.jar',
+            '.;tester.jar;javalib.jar',
             '-d',
             './' + roomId,
             './' + roomId + '/' + fileName
@@ -35,7 +35,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
               'java',
               [
                 '-classpath',
-                './' + roomId + ':tester.jar:javalib.jar',
+                './' + roomId + ';tester.jar;javalib.jar',
                 'tester.Main'
               ].concat(examplesClasses),
               { timeout: 10000 },
