@@ -9,7 +9,7 @@ router.route('/java').post((req, res) => {
   const roomId = req.body.roomId
 
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
-    .then(out => res.json(out))
+    .then(out => res.json({ out }))
     .catch(err => {
       console.log(err)
       res.status(500).json(err)

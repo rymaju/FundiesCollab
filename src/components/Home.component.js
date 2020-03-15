@@ -24,7 +24,7 @@ class Home extends Component {
               />
             </div>
             <p className='lead'>
-              Collaborative Real-Time coding in Java using the Fundies 2 Tester
+              Collaborative Real-Time Coding in Java using the Fundies 2 Tester
               and Image libraries.
             </p>
             <hr className='my-2' />

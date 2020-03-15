@@ -163,9 +163,10 @@ class ExamplesFoo {
         roomId: this.state.roomId
       })
       .then(response => {
-        console.log(response.data)
+        const output = response.data.out
+        console.log(output)
 
-        if (response.data === null || response.data === '') {
+        if (response.data === null || output === '') {
           this.setState({
             output:
               'Your code took way too long to execute! Look for infinite loops or recursion and try again.',
@@ -173,7 +174,7 @@ class ExamplesFoo {
           })
         } else {
           this.setState({
-            output: response.data,
+            output,
             disableButton: false
           })
         }

@@ -1,68 +1,96 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# FundiesCollab
 
-## Available Scripts
+Collaborative Real-Time Coding in Java using the Fundies 2 Tester and Image libraries.
 
-In the project directory, you can run:
+This project is **not** meant to be a replacement for Eclipse for use in Fundies 2. This would be a _terrible_ replacement considering that it can't even run big bang or use the canvas in any way. It is however, a really easy way to share, save, and test simple programs.
 
-### `npm start`
+## How It Works
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Built with ReactJS and Express, hosted on a DigitalOcean droplet. Uses Northeastern's Fundamentals of Computer Science 2 Java Tester and Image libraries.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Code is shared in "rooms" that can be joined or shared by URL. Socket.io is used to create and connect these rooms. Changes to the code are broadcast to everyone in the room, and also stored in the backend, so you can leave and come back to the same code.
 
-### `npm test`
+Code is sent as a POST request from the user's browser to the backend when they hit "Compile". The backend then writes the code to a file, compiles it with the Tester and Image libraries, runs it, then returns stdout.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Run Locally
 
-### `npm run build`
+```
+git clone https://github.com/rymaju/FundiesCollab.git
+npm install
+npm run build
+npm start
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Note that the backend uses `exec` to run commands, this may cause problems when running on Mac or Linux. These can be fixed manually in `compileAndRun.js` by replacing the relevant problematic code (for example replacing ';' with ':').
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+## API
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The backend can be accessed anywhere at `fundiescollab.com/api/compile/`
 
-### `npm run eject`
+### `POST fundiescollab.com/api/compile/java`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Request Body:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+{
+	fileName: String,
+	examplesClasses: [List-of String],
+	javaCode: String,
+	roomId: String
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Request Body Example:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+{
+	fileName: 'Foo.java',
+	examplesClasses: ['ExamplesFoo'],
+	javaCode: 'public class Foo { ... }',
+	roomId: 'crunchy-pineapple-0115'
+}
+```
 
-## Learn More
+#### `200 OK`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Response Body:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+{
+	out: String
+}
+```
 
-### Code Splitting
+Example Response Body:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+Code compiled and ran successfuly with Tester Library
 
-### Analyzing the Bundle Size
+```
+{
+	out: 'Tester Library 3.0 ...'
+}
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+Code did not compile
 
-### Making a Progressive Web App
+```
+{
+	out: '...Foo.java:1: error: package tester does not exist...'
+}
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+Execution timed out
 
-### Advanced Configuration
+```
+{
+	out: ''
+}
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+#### `429 Too Many Requests`
 
-### Deployment
+The API is rate limited to 5 requests per minute. If for some reason you need to spam compilation faster than that, then either something is wrong with the way you code or you're trying to break my server - both call for some serious self reflection.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+#### `500 Internal Server Error`
 
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Something terribly terribly wrong has occurred. Shoot me an email so I can fix it.
