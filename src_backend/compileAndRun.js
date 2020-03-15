@@ -12,13 +12,13 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
         if (err) {
           reject(err)
         }
-        console.log('The file was saved!')
+        //console.log('The file was saved!')
 
         execFile(
           'javac',
           [
             '-cp',
-            '.:tester.jar:javalib.jar',
+            '.;tester.jar;javalib.jar',
             '-d',
             './' + roomId,
             './' + roomId + '/' + fileName
@@ -29,13 +29,13 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
               resolve(stderr)
             }
 
-            console.log('Compilation complete')
+            //console.log('Compilation complete')
 
             execFile(
               'java',
               [
                 '-classpath',
-                './' + roomId + ':tester.jar:javalib.jar',
+                './' + roomId + ';tester.jar;javalib.jar',
                 'tester.Main'
               ].concat(examplesClasses),
               { timeout: 10000 },
@@ -43,7 +43,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
                 if (error) {
                   resolve(stderr)
                 }
-                console.log('run complete returning response...')
+                //console.log('run complete returning response...')
                 resolve(stdout)
               }
             )

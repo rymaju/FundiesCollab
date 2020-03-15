@@ -4,16 +4,16 @@ function socketSetup (server, roomData) {
   const io = socketIO(server)
 
   io.on('connection', socket => {
-    console.log('a user connected')
+    //console.log('a user connected')
 
     socket.on('disconnect', () => {
-      console.log('user disconnected')
+      //console.log('user disconnected')
     })
 
     socket.on('join room', function (data) {
       socket.join(data.room)
       if (roomData[data.room]) {
-        console.log('sending')
+        //console.log('sending')
 
         io.to(`${socket.id}`).emit('sync code', {
           newCode: roomData[data.room].code

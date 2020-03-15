@@ -21,7 +21,7 @@ npm run build
 npm start
 ```
 
-Note that the backend uses `exec` to run commands, this may cause problems when running on Mac or Linux. These can be fixed manually in `compileAndRun.js` by replacing the relevant problematic code (for example replacing ';' with ':').
+Note that the backend uses `exec` to run commands, this may cause problems when running on Mac or Linux, but it should be easy to spot and fix.
 
 ## API
 

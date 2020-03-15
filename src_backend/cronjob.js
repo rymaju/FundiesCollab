@@ -5,7 +5,7 @@ function cronjobSetup (roomData) {
   var job = new CronJob(
     '0 0 0 * * *',
     function () {
-      console.log('running cron job')
+      console.log('running cron job at ' + new Date().toISOString())
       var oneWeekAgo = new Date()
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
 

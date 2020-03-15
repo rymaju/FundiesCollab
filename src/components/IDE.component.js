@@ -29,16 +29,9 @@ const fileDownload = require('js-file-download')
 require('./custom-codemirror.css')
 require('codemirror/addon/edit/closebrackets')
 require('codemirror/addon/edit/matchbrackets')
-
-require('codemirror/addon/hint/show-hint')
-const anyword = require('codemirror/addon/hint/anyword-hint')
-
 require('codemirror/addon/display/rulers')
-
 require('codemirror/addon/selection/active-line')
-
 require('codemirror/addon/search/match-highlighter')
-
 require('codemirror/mode/clike/clike')
 
 const io = require('socket.io-client')
@@ -93,7 +86,7 @@ class ExamplesFoo {
     }
 
     socket.on('sync code', payload => {
-      console.log(payload)
+      //console.log(payload)
       this.setState({ javaCode: payload.newCode })
     })
 
@@ -153,10 +146,10 @@ class ExamplesFoo {
       disableButton: true
     })
 
-    console.log(this.state.javaCode)
+    //console.log(this.state.javaCode)
 
     axios
-      .post('https://fundiescollab.com/api/compile/java', {
+      .post('http://localhost:5000/api/compile/java', {
         fileName: this.state.fileName,
         examplesClasses: this.state.examplesClasses,
         javaCode: this.state.javaCode,
@@ -164,37 +157,40 @@ class ExamplesFoo {
       })
       .then(response => {
         const output = response.data.out
-        console.log(output)
 
-        if (response.data === null || output === '') {
+        this.setState({
+          output,
+          disableButton: false
+        })
+      })
+      .catch(error => {
+        console.log(error)
+
+        if (error.response.status === 408) {
           this.setState({
             output:
               'Your code took way too long to execute! Look for infinite loops or recursion and try again.',
             disableButton: false
           })
+        } else if (error.response.status === 500) {
+          this.setState({
+            output: `Yikes, something went wrong with our servers. Sorry! Email me at ryan.matthew.jung@gmail.com to let me know there's a problem. In the meantime, you can download your code and work offline.`,
+            disableButton: false
+          })
         } else {
           this.setState({
-            output,
+            output:
+              'Oops! There was a problem processing your request. Please wait 60 seconds and try again.',
             disableButton: false
           })
         }
-      })
-      .catch(error => {
-        console.log(error)
-        this.setState({
-          output:
-            'Oops! There was a problem processing your request. Please wait 60 seconds and try again.',
-          disableButton: false
-        })
       })
   }
 
   componentDidMount () {
     this.setState({ roomId: this.props.match.params.id }, () => {
       socket.emit('join room', { room: this.state.roomId })
-      console.log(this.state.roomId)
     })
-    console.log(this.props)
   }
 
   componentWillUnmount () {
@@ -328,9 +324,6 @@ class ExamplesFoo {
                     mode: 'text/x-java',
                     matchBrackets: true,
                     autoCloseBrackets: true,
-                    showHint: {
-                      hint: anyword
-                    },
                     theme: this.state.theme,
                     styleActiveLine: true,
                     highlightSelectionMatches: true
@@ -360,7 +353,7 @@ class ExamplesFoo {
                   value={this.state.output}
                   options={{
                     lineWrapping: true,
-                    readOnly: 'nocursor',
+                    readOnly: false,
                     scrollbarStyle: null,
                     theme: this.state.theme
                   }}

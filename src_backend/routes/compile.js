@@ -1,6 +1,5 @@
 const router = require('express').Router()
 const compileAndRun = require('../compileAndRun')
-const uuid = require('uuid')
 
 router.route('/java').post((req, res) => {
   const fileName = req.body.fileName
@@ -9,10 +8,15 @@ router.route('/java').post((req, res) => {
   const roomId = req.body.roomId
 
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
-    .then(out => res.json({ out }))
+    .then(out => {
+      if (out === '') {
+        res.status(408).end()
+      } else {
+        res.status(200).json({ out }).end()
+      }
+    })
     .catch(err => {
-      console.log(err)
-      res.status(500).json(err)
+      res.status(500).end()
     })
 })
 
