@@ -18,6 +18,7 @@ function App () {
           content='Collaborative Real-Time coding in Java using the Fundies 2 Tester
               and Image libraries.'
         />
+        <link rel='icon' type='image/png' href='/favicon.ico' sizes='16x16' />
       </Helmet>
       <BrowserRouter>
         <Switch>
