@@ -14,14 +14,14 @@ Code is sent as a POST request from the user's browser to the backend when they 
 
 ## Run Locally
 
+Make sure your system has Git, Node.js, and Docker installed then run the following commands:
+
 ```
 git clone https://github.com/rymaju/FundiesCollab.git
 npm install
 npm run build
 npm start
 ```
-
-Note that the backend uses `exec` to run commands, this may cause problems when running on Mac or Linux, but it should be easy to spot and fix.
 
 ## API
 

@@ -1,6 +1,10 @@
 const fs = require('fs')
+const path = require('path')
 
 const { execFile, exec } = require('child_process')
+
+const appRoot = path.dirname(require.main.filename)
+
 
 // compiles and runs the given java file with the correct examples classes given the name, list of examples, and code
 // EFFECT: creates a java file, runs and compiles it, returning the output
@@ -15,10 +19,12 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
         //console.log('The file was saved!')
 
         execFile(
-          'javac',
+          'docker',
           [
+            ...dockerArguments(roomId),
+            'javac',
             '-cp',
-            '.;tester.jar;javalib.jar',
+            '.:tester.jar:javalib.jar',
             '-d',
             './' + roomId,
             './' + roomId + '/' + fileName
@@ -32,10 +38,12 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
             //console.log('Compilation complete')
 
             execFile(
-              'java',
+              'docker',
               [
+                ...dockerArguments(roomId),
+                'java',
                 '-classpath',
-                './' + roomId + ';tester.jar;javalib.jar',
+                './' + roomId + ':tester.jar:javalib.jar',
                 'tester.Main'
               ].concat(examplesClasses),
               { timeout: 10000 },
@@ -52,6 +60,27 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
       })
     })
   })
+}
+
+/**
+ * Return arguments to use for running docker for a given roomId
+ * @param roomId the roomId for this run
+ * @returns {string[]} docker arguments
+ */
+function dockerArguments (roomId) {
+  return [
+    'run',
+    '-t',
+    '--rm',
+    '--workdir=/app',
+    '--volume',
+    `${appRoot}/${roomId}:/app/${roomId}`,
+    '--volume',
+    `${appRoot}/tester.jar:/app/tester.jar:ro`,
+    '--volume',
+    `${appRoot}/javalib.jar:/app/javalib.jar:ro`,
+    'openjdk:11-jdk',
+  ]
 }
 
 module.exports = compileAndRun
