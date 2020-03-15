@@ -3,7 +3,7 @@ import { Route, BrowserRouter, Switch } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
-import IDE from './components/IDE.component'
+import Room from './components/Room.component'
 import NotFound from './components/NotFound.component'
 import Home from './components/Home.component'
 
@@ -22,7 +22,7 @@ function App () {
       <BrowserRouter>
         <Switch>
           <Route exact path='/' component={Home} />
-          <Route exact path='/room/:id' component={IDE} />
+          <Route exact path='/room/:id' component={Room} />
           <Route exact path='*' component={NotFound} />
         </Switch>
       </BrowserRouter>

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import { Jumbotron, Button, Container, Row, Col, Input } from 'reactstrap'
+import { Jumbotron, Button, Container, Row, Col } from 'reactstrap'
 const Haikunator = require('haikunator')
 const haikunator = new Haikunator()
 
@@ -74,6 +74,25 @@ class Home extends Component {
                 * You are unable to use bigBang, or render any shapes from the
                 Image library to canvas.
               </i>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <p className='mt-5'>
+                <i>FundiesCollab v1.0 </i>
+                {`©${new Date().getFullYear()}`}
+                <p>Created by Ryan Jung @ Northeastern University</p>
+
+                <a href='https://github.com/rymaju/FundiesCollab'>Github</a>
+                {' | '}
+                <a href='https://course.ccs.neu.edu/cs2510/Documentation.html'>
+                  Image & Tester Library Docs
+                </a>
+                {' | '}
+                <a href='https://course.ccs.neu.edu/cs2510/'>
+                  Fundies 2 Homepage
+                </a>
+              </p>{' '}
             </Col>
           </Row>
         </Container>

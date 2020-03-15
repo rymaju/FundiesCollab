@@ -5,9 +5,12 @@ import '../theme/eclipse.css'
 import '../theme/dracula.css'
 import '../theme/material-palenight.css'
 
-import lightMode from './IDELight.module.css'
-import darkMode from './IDEDark.module.css'
+import lightMode from './Light.module.css'
+import darkMode from './Dark.module.css'
 
+import { Helmet } from 'react-helmet'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import exampleCode from './exampleCode'
 import {
   Button,
   ButtonGroup,
@@ -18,12 +21,8 @@ import {
   Col,
   UncontrolledAlert,
   InputGroup,
-  InputGroupText,
   InputGroupAddon
 } from 'reactstrap'
-import { Helmet } from 'react-helmet'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-
 const fileDownload = require('js-file-download')
 
 require('./custom-codemirror.css')
@@ -37,46 +36,14 @@ require('codemirror/mode/clike/clike')
 const io = require('socket.io-client')
 const socket = io()
 
-class IDE extends Component {
+class Room extends Component {
   constructor () {
     super()
 
     this.state = {
       fileName: 'Foo.java',
       examplesClasses: ['ExamplesFoo'],
-      javaCode: `import tester.Tester;
-import javalib.worldimages.*;
-import java.awt.Color;
-
-class Foo {
-  int a;
-  int b;
-
-  Foo(int a, int b) {
-    this.a = a;
-    this.b = b;
-  }
-
-  int add() {
-    return this.a + this.b;
-  }
-
-  WorldImage render() {
-    return new CircleImage(10, OutlineMode.SOLID, Color.PINK);
-  }
-}
-
-class ExamplesFoo {
-  void testFoo(Tester t) {
-    t.checkExpect(new Foo(1, 2).add(), 3);
-    t.checkExpect(new Foo(4, 56).add(), 60);
-    t.checkExpect(new Foo(1, 2).render(), new CircleImage(10, OutlineMode.SOLID, Color.PINK));
-    // Fail
-    t.checkExpect(new Foo(1, 2).add(), 4);
-  }
-}
-
-`,
+      javaCode: exampleCode,
       output: `Press "Compile" or hit Ctrl+R to run your code!`,
       disableButton: false,
       roomId: '',
@@ -86,7 +53,6 @@ class ExamplesFoo {
     }
 
     socket.on('sync code', payload => {
-      //console.log(payload)
       this.setState({ javaCode: payload.newCode })
     })
 
@@ -166,7 +132,13 @@ class ExamplesFoo {
       .catch(error => {
         console.log(error)
 
-        if (error.response.status === 408) {
+        if (error.response === undefined) {
+          this.setState({
+            output:
+              'We cant seem to connect to our servers, sorry! In the meantime, you can download your code and work offline.',
+            disableButton: false
+          })
+        } else if (error.response.status === 408) {
           this.setState({
             output:
               'Your code took way too long to execute! Look for infinite loops or recursion and try again.',
@@ -386,4 +358,4 @@ class ExamplesFoo {
   }
 }
 
-export default IDE
+export default Room
