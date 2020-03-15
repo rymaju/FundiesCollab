@@ -15,7 +15,7 @@ function App () {
         <title>FundiesCollab</title>
         <meta
           name='description'
-          content='Collaborative Real-Time coding in Java using the Fundies 2 Tester
+          content='Collaborative Real-Time Coding in Java using the Fundies 2 Tester
               and Image libraries.'
         />
         <link rel='icon' type='image/png' href='/favicon.ico' sizes='16x16' />
