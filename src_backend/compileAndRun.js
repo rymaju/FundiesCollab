@@ -5,7 +5,6 @@ const { execFile, exec } = require('child_process')
 
 const appRoot = path.dirname(require.main.filename)
 
-
 // compiles and runs the given java file with the correct examples classes given the name, list of examples, and code
 // EFFECT: creates a java file, runs and compiles it, returning the output
 // compileAndRun : String [List-of String] String -> [Promise String]
@@ -15,6 +14,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
       fs.writeFile(roomId + '/' + fileName, javaCode, function (err) {
         if (err) {
           reject(err)
+          return
         }
         //console.log('The file was saved!')
 
@@ -33,6 +33,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
           (error, stdout, stderr) => {
             if (error) {
               resolve(stderr)
+              return
             }
 
             //console.log('Compilation complete')
@@ -50,6 +51,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
               (error, stdout, stderr) => {
                 if (error) {
                   resolve(stderr)
+                  return
                 }
                 //console.log('run complete returning response...')
                 resolve(stdout)
@@ -79,7 +81,7 @@ function dockerArguments (roomId) {
     `${appRoot}/tester.jar:/app/tester.jar:ro`,
     '--volume',
     `${appRoot}/javalib.jar:/app/javalib.jar:ro`,
-    'openjdk:11-jdk',
+    'openjdk:11-jdk'
   ]
 }
 
