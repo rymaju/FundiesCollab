@@ -30,11 +30,13 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
           ],
           (error, stdout, stderr) => {
             if (error) {
+              console.log('javac')
+
               console.log('error: ' + error)
               console.log('error: ' + stderr)
               console.log('error: ' + stdout)
 
-              resolve(stderr)
+              return resolve(stdout)
             }
             console.log('no error (hopefully)')
 
@@ -52,7 +54,12 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
               { timeout: 20000 }, // 20 seconds timeout
               (error, stdout, stderr) => {
                 if (error) {
-                  return resolve(stderr)
+                  console.log('java')
+
+                  console.log('error: ' + error)
+                  console.log('error: ' + stderr)
+                  console.log('error: ' + stdout)
+                  return resolve(stdout)
                 }
                 //console.log('run complete returning response...')
                 return resolve(stdout)
