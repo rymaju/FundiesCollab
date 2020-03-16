@@ -13,8 +13,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
     exec('mkdir ' + roomId, { timeout: 10000 }, (error, stdout, stderr) => {
       fs.writeFile(roomId + '/' + fileName, javaCode, function (err) {
         if (err) {
-          reject(err)
-          return
+          return reject(err)
         }
         //console.log('The file was saved!')
 
@@ -32,8 +31,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
           { timeout: 10000 },
           (error, stdout, stderr) => {
             if (error) {
-              resolve(stderr)
-              return
+              return resolve(stderr)
             }
 
             //console.log('Compilation complete')
@@ -50,11 +48,10 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
               { timeout: 10000 },
               (error, stdout, stderr) => {
                 if (error) {
-                  resolve(stderr)
-                  return
+                  return resolve(stderr)
                 }
                 //console.log('run complete returning response...')
-                resolve(stdout)
+                return resolve(stdout)
               }
             )
           }

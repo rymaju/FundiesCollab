@@ -7,24 +7,32 @@ router.route('/java').post((req, res) => {
   const javaCode = req.body.javaCode
   const roomId = req.body.roomId
 
+  function successCallback (result) {
+    console.log(`Compilation took`)
+    console.timeEnd('exampleCompileAndRun')
+
+    if (result === '') {
+      res.status(408).end()
+    } else {
+      res
+        .status(200)
+        .json({ result })
+        .end()
+    }
+  }
+
+  function failureCallback (error) {
+    console.log(`Error: ${error}`)
+    console.timeEnd('exampleCompileAndRun')
+    res.status(500).end()
+  }
+
   console.time('exampleCompileAndRun')
 
-  compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
-    .then(out => {
-      console.log(`Compilation in room ${roomId} took`)
-      console.timeEnd('exampleCompileAndRun')
-
-      if (out === '') {
-        res.status(408).end()
-      } else {
-        res.status(200).json({ out }).end()
-      }
-    })
-    .catch(err => {
-      console.log(`Error in room ${roomId}: ${err}`)
-      console.timeEnd('exampleCompileAndRun')
-      res.status(500).end()
-    })
+  compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId).then(
+    successCallback,
+    failureCallback
+  )
 })
 
 router.route('/racket').post((req, res) => {
