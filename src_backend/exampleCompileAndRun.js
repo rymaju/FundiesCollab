@@ -4,9 +4,16 @@ const javaCode = require('./exampleJavaCode')
 
 const compileAndRun = require('./compileAndRun')
 
+// Run this file from the root directory:
+// node src_backend/exampleCompileAndRun.js
+
+console.time('exampleCompileAndRun')
 compileAndRun(fileName, examplesClasses, javaCode, 'room-huffman')
-  .then(out => console.log(out))
-  .catch()
+  .then(out => {
+    console.log('output:\n' + out)
+    console.timeEnd('exampleCompileAndRun')
+  })
+  .catch(err => console.log(err))
 /*
 
 The file was saved!
