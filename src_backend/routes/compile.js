@@ -7,8 +7,13 @@ router.route('/java').post((req, res) => {
   const javaCode = req.body.javaCode
   const roomId = req.body.roomId
 
+  console.time('exampleCompileAndRun')
+
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
     .then(out => {
+
+      console.timeEnd('exampleCompileAndRun')
+
       if (out === '') {
         res.status(408).end()
       } else {
@@ -16,6 +21,7 @@ router.route('/java').post((req, res) => {
       }
     })
     .catch(err => {
+      console.timeEnd('exampleCompileAndRun')
       res.status(500).end()
     })
 })
