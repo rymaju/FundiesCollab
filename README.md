@@ -10,7 +10,7 @@ Built with ReactJS and Express, hosted on a DigitalOcean droplet. Uses Northeast
 
 Code is shared in "rooms" that can be joined or shared by URL. Socket.io is used to create and connect these rooms. Changes to the code are broadcast to everyone in the room, and also stored in the backend, so you can leave and come back to the same code.
 
-Code is sent as a POST request from the user's browser to the backend when they hit "Compile". The backend then writes the code to a file, compiles it with the Tester and Image libraries, runs it, then returns stdout.
+Code is sent as a POST request from the user's browser to the backend when they hit "Compile". The backend then writes the code to a file, compiles and runs it with the Tester and Image libraries (inside a docker container to prevent damage from arbitrary code execution), then returns stdout.
 
 ## Run Locally
 

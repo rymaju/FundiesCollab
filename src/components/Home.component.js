@@ -80,7 +80,6 @@ class Home extends Component {
             <Col>
               <p className='mt-5'>
                 <i>FundiesCollab v1.0 </i>
-                {`©${new Date().getFullYear()}`}
                 <p>Created by Ryan Jung @ Northeastern University</p>
 
                 <a href='https://github.com/rymaju/FundiesCollab'>Github</a>

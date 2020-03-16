@@ -336,7 +336,6 @@ class Room extends Component {
               <Col>
                 <p className={`${this.state.style.text} mt-3`}>
                   <i>FundiesCollab v1.0 </i>
-                  {`©${new Date().getFullYear()}`}
                   <p>Created by Ryan Jung @ Northeastern University</p>
 
                   <a href='https://github.com/rymaju/FundiesCollab'>Github</a>
