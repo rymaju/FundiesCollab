@@ -10,7 +10,7 @@ const appRoot = path.dirname(require.main.filename)
 // compileAndRun : String [List-of String] String -> [Promise String]
 function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
   return new Promise(function (resolve, reject) {
-    exec('mkdir ' + roomId, { timeout: 10000 }, (error, stdout, stderr) => {
+    exec('mkdir ' + roomId, (error, stdout, stderr) => {
       fs.writeFile(roomId + '/' + fileName, javaCode, function (err) {
         if (err) {
           return reject(err)
@@ -28,11 +28,15 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
             './' + roomId,
             './' + roomId + '/' + fileName
           ],
-          { timeout: 10000 },
           (error, stdout, stderr) => {
             if (error) {
-              return resolve(stderr)
+              console.log('error: ' + error)
+              console.log('error: ' + stderr)
+              console.log('error: ' + stdout)
+
+              resolve(stderr)
             }
+            console.log('no error (hopefully)')
 
             //console.log('Compilation complete')
 
@@ -45,7 +49,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
                 './' + roomId + ':tester.jar:javalib.jar',
                 'tester.Main'
               ].concat(examplesClasses),
-              { timeout: 10000 },
+              { timeout: 20000 }, // 20 seconds timeout
               (error, stdout, stderr) => {
                 if (error) {
                   return resolve(stderr)
