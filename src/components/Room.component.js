@@ -143,7 +143,7 @@ class Room extends Component {
               'We cant seem to connect to our servers, sorry! In the meantime, you can download your code and work offline.',
             disableButton: false
           })
-        } else if (error.response.status === 408) {
+        } else if (error.response.status === 400) {
           this.setState({
             output:
               'Your code took way too long to execute! Look for infinite loops or recursion and try again.',

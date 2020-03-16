@@ -4,6 +4,8 @@ const path = require('path')
 const { execFile, exec } = require('child_process')
 
 const appRoot = path.dirname(require.main.filename)
+const compileTimeoutMs = 10000 // 10 second timeout
+const executionTimeoutMs = 20000 // 20 second timeout
 
 // compiles and runs the given java file with the correct examples classes given the name, list of examples, and code
 // EFFECT: creates a java file, runs and compiles it, returning the output
@@ -28,17 +30,13 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
             './' + roomId,
             './' + roomId + '/' + fileName
           ],
+          { timeout: compileTimeoutMs },
           (error, stdout, stderr) => {
             if (error) {
-              console.log('javac')
-
-              console.log('error: ' + error)
-              console.log('error: ' + stderr)
-              console.log('error: ' + stdout)
-
+              console.log('complation error')
               return resolve(stdout)
             }
-            console.log('no error (hopefully)')
+            console.log('compiled without error')
 
             //console.log('Compilation complete')
 
@@ -51,17 +49,8 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
                 './' + roomId + ':tester.jar:javalib.jar',
                 'tester.Main'
               ].concat(examplesClasses),
-              { timeout: 20000 }, // 20 seconds timeout
+              { timeout: executionTimeoutMs },
               (error, stdout, stderr) => {
-                if (error) {
-                  console.log('java')
-
-                  console.log('error: ' + error)
-                  console.log('error: ' + stderr)
-                  console.log('error: ' + stdout)
-                  return resolve(stdout)
-                }
-                //console.log('run complete returning response...')
                 return resolve(stdout)
               }
             )

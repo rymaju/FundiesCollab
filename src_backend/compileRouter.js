@@ -11,7 +11,7 @@ router.route('/java').post((req, res) => {
 
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
     .then(out => {
-      console.log(`Compilation in room ${roomId} took`)
+      console.log(`Request from room-${roomId} took:`)
       console.timeEnd('exampleCompileAndRun')
 
       if (out === '') {

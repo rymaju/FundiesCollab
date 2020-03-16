@@ -14,7 +14,9 @@ Code is sent as a POST request from the user's browser to the backend when they 
 
 ## Run Locally
 
-Make sure your system has Git, Node.js, and Docker installed then run the following commands:
+### Frontend & Backend
+
+Make sure your system has Git, Node.js, Java and Docker installed then run the following commands:
 
 ```
 git clone https://github.com/rymaju/FundiesCollab.git
@@ -23,9 +25,15 @@ npm run build
 npm start
 ```
 
+The app will be live at `http://localhost:5000`.
+
+### Frontend
+
+If you just want to run and test the frontend, run `npm run react` which will start the frontend on `http://localhost:3000`. Currently as the API is public, you can also set `NODE_ENV='production'` to use the API live at `fundiescollab.com`.
+
 ## API
 
-The backend can be accessed anywhere at `fundiescollab.com/api/compile/`
+The backend can be accessed anywhere at `fundiescollab.com/api/compile/`, but may be CORS restricted to `fundiescollab.com`.
 
 ### `POST fundiescollab.com/api/compile/java`
 
@@ -53,6 +61,8 @@ Request Body Example:
 
 #### `200 OK`
 
+The API will respond `200 OK` on successful compilation and runs, runtime errors, and compile time errors. These are all results that are expected and contain useful output that should be displayed to the user.
+
 Response Body:
 
 ```
@@ -79,18 +89,15 @@ Code did not compile
 }
 ```
 
-Execution timed out
-
 ```
-{
-	out: ''
-}
-```
+#### `400 Bad Request`
+The submitted code took too long to run. Currently, your program must compile in 10 seconds or less and execute in 20 seconds or less.
 
 #### `429 Too Many Requests`
 
-The API is rate limited to 5 requests per minute. If for some reason you need to spam compilation faster than that, then either something is wrong with the way you code or you're trying to break my server - both call for some serious self reflection.
+The API is rate limited to 20 requests every 10 minutes. If for some reason you need to spam compilation faster than that, then either something is wrong with the way you code or you're trying to break my server - both call for some serious self reflection.
 
 #### `500 Internal Server Error`
 
 Something terribly terribly wrong has occurred. Shoot me an email so I can fix it.
+```
