@@ -16,7 +16,7 @@ router.route('/java').post((req, res) => {
     } else {
       res
         .status(200)
-        .json({ result })
+        .json({ out: result })
         .end()
     }
   }
@@ -29,6 +29,7 @@ router.route('/java').post((req, res) => {
 
   console.time('exampleCompileAndRun')
 
+  console.log('post to /java called')
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId).then(
     successCallback,
     failureCallback
