@@ -115,12 +115,17 @@ class Room extends Component {
     //console.log(this.state.javaCode)
 
     axios
-      .post('http://localhost:5000/api/compile/java', {
-        fileName: this.state.fileName,
-        examplesClasses: this.state.examplesClasses,
-        javaCode: this.state.javaCode,
-        roomId: this.state.roomId
-      })
+      .post(
+        process.env.NODE_ENV === 'production'
+          ? 'https://fundiescollab.com/api/compile/java'
+          : 'http://localhost:5000/api/compile/java',
+        {
+          fileName: this.state.fileName,
+          examplesClasses: this.state.examplesClasses,
+          javaCode: this.state.javaCode,
+          roomId: this.state.roomId
+        }
+      )
       .then(response => {
         const output = response.data.out
 
