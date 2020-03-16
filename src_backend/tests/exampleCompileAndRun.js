@@ -2,10 +2,10 @@ const fileName = 'Huffman.java'
 const examplesClasses = ['ExamplesHuffman']
 const javaCode = require('./exampleJavaCode')
 
-const compileAndRun = require('./compileAndRun')
+const compileAndRun = require('../compileAndRun')
 
 // Run this file from the root directory:
-// node src_backend/exampleCompileAndRun.js
+// node src_backend/tests/exampleCompileAndRun.js
 
 console.time('exampleCompileAndRun')
 compileAndRun(fileName, examplesClasses, javaCode, 'room-huffman')

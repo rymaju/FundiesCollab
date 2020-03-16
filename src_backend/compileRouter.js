@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const compileAndRun = require('../compileAndRun')
+const compileAndRun = require('./compileAndRun')
 
 router.route('/java').post((req, res) => {
   const fileName = req.body.fileName
@@ -11,7 +11,7 @@ router.route('/java').post((req, res) => {
 
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
     .then(out => {
-
+      console.log(`Compilation in room ${roomId} took`)
       console.timeEnd('exampleCompileAndRun')
 
       if (out === '') {
@@ -21,6 +21,7 @@ router.route('/java').post((req, res) => {
       }
     })
     .catch(err => {
+      console.log(`Error in room ${roomId}: ${err}`)
       console.timeEnd('exampleCompileAndRun')
       res.status(500).end()
     })

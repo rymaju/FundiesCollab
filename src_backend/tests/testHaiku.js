@@ -14,5 +14,4 @@ while (pastIds[haiku] === undefined) {
   count += 1
   if (count % 10 === 0) console.log(count)
 }
-console.log(count)
-console.log(haiku)
+console.log(`${count} unique room ids before a collision with the id ${haiku}`)

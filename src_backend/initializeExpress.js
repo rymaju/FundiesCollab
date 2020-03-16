@@ -3,14 +3,14 @@ const cors = require('cors')
 const path = require('path')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
-const compileRouter = require('./routes/compile')
+const compileRouter = require('./compileRouter')
 
 function init (rootDirectory) {
   const app = express()
 
   const apiLimiter = rateLimit({
     windowMs: 1000 * 60, // 1 minute
-    max: 5 // limit each IP to 5 requests per windowMs
+    max: 5 // limit each IP to 5 requests per minute
   })
 
   app.use(cors()) // Here we protect against XSS by whitelisting origins

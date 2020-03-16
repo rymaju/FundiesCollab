@@ -13,7 +13,6 @@ function socketSetup (server, roomData) {
     socket.on('join room', function (data) {
       socket.join(data.room)
       if (roomData[data.room]) {
-        //console.log('sending')
 
         io.to(`${socket.id}`).emit('sync code', {
           newCode: roomData[data.room].code
