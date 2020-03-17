@@ -1,8 +1,6 @@
-module.exports = {
-  apps: [
-    {
-      name: 'FundiesCollab',
-      script: 'server.js',
+module.exports  = {
+      name: 'server',
+      script: './server.js',
 
       // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
       instances: 'max',
@@ -20,6 +18,6 @@ module.exports = {
       log_file: 'combined.log',
       time: true,
       exec_mode: 'cluster'
-    }
-  ]
+    
+  
 }
