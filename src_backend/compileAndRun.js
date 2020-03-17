@@ -1,14 +1,18 @@
 const fs = require('fs')
 const path = require('path')
-
 const { execFile, exec } = require('child_process')
 
 const appRoot = path.dirname(require.main.filename)
-const executionTimeoutMs = 20000 // 20 second timeout
+const executionTimeoutMs = 15000 // 15 second timeout
 
-// compiles and runs the given java file with the correct examples classes given the name, list of examples, and code
-// EFFECT: creates a java file, runs and compiles it, returning the output
-// compileAndRun : String [List-of String] String -> [Promise String]
+/**
+ * Compiles and runs the given java file through its example classes, returning the output or nothing on timeout
+ * @param {string} fileName the full file name of the java file
+ * @param {string[]} examplesClasses a list example classes to be used for the Tester library
+ * @param {string} javaCode the java code to be compiled
+ * @param {string} roomId the room id
+ * @returns {string} the output of running the java code including runtime and compile time errors, or nothing on timeout
+ */
 function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
   return new Promise(function (resolve, reject) {
     exec('mkdir ' + roomId, (error, stdout, stderr) => {
@@ -27,7 +31,6 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
           [...dockerArguments(roomId), command],
           { timeout: executionTimeoutMs },
           (error, stdout, stderr) => {
-            
             if (error) {
               console.log('complation error')
               return resolve(stdout)
