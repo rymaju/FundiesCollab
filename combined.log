@@ -174,3 +174,7 @@
 2020-03-17T15:01:40:     at tryModuleLoad (internal/modules/cjs/loader.js:593:12)
 2020-03-17T15:01:40:     at Function.Module._load (internal/modules/cjs/loader.js:585:3)
 2020-03-17T15:01:40:     at Module.require (internal/modules/cjs/loader.js:692:17) code: 'MODULE_NOT_FOUND' }
+2020-03-17T15:38:07: Server is listening on port 5000
+2020-03-17T15:38:22: compiled without error
+2020-03-17T15:38:22: Request from room-frosty-firefly-3210 took:
+2020-03-17T15:38:22: [ 8, 933311416 ]
