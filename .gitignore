@@ -2,5 +2,5 @@
 *.java
 *.class
 /build
-
+*.log
 /room*
