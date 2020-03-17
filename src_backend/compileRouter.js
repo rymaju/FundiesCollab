@@ -2,16 +2,12 @@ const router = require('express').Router()
 const compileAndRun = require('./compileAndRun')
 const pm2io = require('@pm2/io')
 
-
 const histogram = pm2io.histogram({
-  name: 'java compile and run latency',
+  name: 'java latency',
   measurement: 'mean'
 })
 
-let javaMean = 0
-
 router.route('/java').post((req, res) => {
-
   const fileName = req.body.fileName
   const examplesClasses = req.body.examplesClasses
   const javaCode = req.body.javaCode
@@ -21,12 +17,10 @@ router.route('/java').post((req, res) => {
 
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
     .then(out => {
-
       console.log(`Request from room-${roomId} took:`)
       const hsEnd = process.hrtime(hrstart)
-      console.log(hsEnd)
-      javaMean = hsEnd
-      histogram.update(javaMean)
+      console.log(`${hsEnd[1] / 10000}ms`)
+      histogram.update(hsEnd[1] / 10000)
 
       if (out === '') {
         res.status(400).end()
@@ -38,12 +32,10 @@ router.route('/java').post((req, res) => {
       }
     })
     .catch(err => {
-
       console.log(`Error in room ${roomId}: ${err}`)
       const hsEnd = process.hrtime(hrstart)
-      console.log(hsEnd)
-      javaMean = hsEnd
-      histogram.update(javaMean)
+      console.log(`${hsEnd[1] / 10000}ms`)
+      histogram.update(hsEnd[1] / 10000)
 
       res.status(500).end()
     })
