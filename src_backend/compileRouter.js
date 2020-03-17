@@ -1,25 +1,16 @@
 const router = require('express').Router()
 const compileAndRun = require('./compileAndRun')
-const io = require('@pm2/io')
+const pm2io = require('@pm2/io')
 
-const meter = io.meter({
-  name: 'req/min',
-  samples: 1,
-  timeframe: 60
-})
 
-const counter = io.counter({
-  name: 'Active requests'
-})
-
-const histogram = io.histogram({
-  name: 'latency',
+const histogram = pm2io.histogram({
+  name: 'java compile and run latency',
   measurement: 'mean'
 })
 
+let javaMean = 0
+
 router.route('/java').post((req, res) => {
-  meter.mark()
-  counter.inc()
 
   const fileName = req.body.fileName
   const examplesClasses = req.body.examplesClasses
@@ -30,12 +21,12 @@ router.route('/java').post((req, res) => {
 
   compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
     .then(out => {
-      counter.dec()
 
       console.log(`Request from room-${roomId} took:`)
       const hsEnd = process.hrtime(hrstart)
       console.log(hsEnd)
-      histogram.update(hsEnd)
+      javaMean = hsEnd
+      histogram.update(javaMean)
 
       if (out === '') {
         res.status(400).end()
@@ -47,12 +38,12 @@ router.route('/java').post((req, res) => {
       }
     })
     .catch(err => {
-      counter.dec()
 
       console.log(`Error in room ${roomId}: ${err}`)
       const hsEnd = process.hrtime(hrstart)
       console.log(hsEnd)
-      histogram.update(hsEnd)
+      javaMean = hsEnd
+      histogram.update(javaMean)
 
       res.status(500).end()
     })
