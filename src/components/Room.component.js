@@ -340,7 +340,7 @@ class Room extends Component {
             <Row>
               <Col>
                 <p className={`${this.state.style.text} mt-3`}>
-                  <i>FundiesCollab v0.9.0 </i>
+                  <i>FundiesCollab v0.9.1 </i>
                   <p>Created by Ryan Jung @ Northeastern University</p>
 
                   <a href='https://github.com/rymaju/FundiesCollab'>Github</a>
