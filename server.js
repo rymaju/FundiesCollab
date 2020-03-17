@@ -3,12 +3,12 @@ const socketSetup = require('./src_backend/socket')
 const cronjobSetup = require('./src_backend/cronjob')
 
 // setup the express server
-const app = init(__dirname)
+const app = init()
 const port = process.env.PORT || 5000
 
 // launch the express server
 const server = app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`)
+  console.log(`Server is listening on port ${ port}`)
 })
 
 // An associative array of rooms ({code, lastActiveDateTime}), keyed by their room ID

@@ -5,24 +5,26 @@ const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const compileRouter = require('./compileRouter')
 
-function init (rootDirectory) {
+const appRoot = path.dirname(require.main.filename)
+
+function init () {
   const app = express()
 
   const apiLimiter = rateLimit({
-    windowMs: 1000 * 60, // 1 minute
-    max: 5 // limit each IP to 5 requests per minute
+    windowMs: 1000 * 60 * 10, // 10 minutes
+    max: 20 // limit each IP to 20 requests per 10 minutes
   })
 
   app.use(cors()) // Here we protect against XSS by whitelisting origins
   app.use(helmet()) // helmet is a medley of security middleware to better protect our app
   app.use(express.json()) // Built in body-parser for reading request JSON bodies
   app.use('/api/', apiLimiter) // use the apiLimiter only on routes beginning with /api
-  app.use(express.static(path.join(rootDirectory, '/build'))) // host the static files built from React
+  app.use(express.static(path.join(appRoot, '/build'))) // host the static files built from React
   app.use('/api/compile', compileRouter) // mount the subrouter
 
   // If the route cannot be identified, send the index.html file and let react router route instead
   app.get('*', function (req, res) {
-    res.sendFile(path.join(rootDirectory, '/build/index.html'), function (err) {
+    res.sendFile(path.join(appRoot, '/build/index.html'), function (err) {
       if (err) {
         res.redirect('/')
       }
