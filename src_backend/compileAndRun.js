@@ -16,7 +16,7 @@ const executionTimeoutMs = 15000 // 15 second timeout
 function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
   return new Promise(function (resolve, reject) {
     mkdir(roomDir, err => {
-      if (err && err.code === 'EEXIST') {
+      if (err && err.code !== 'EEXIST') {
         return reject(err)
       }
 
