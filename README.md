@@ -27,6 +27,8 @@ npm start
 
 The app will be live at `http://localhost:5000`.
 
+Alternatively, you can also run the server using `pm2`, installed with `npm install -g pm2` by running `pm2 ecosystem.config.js`. This offers the advantage of being able to see metrics by using the command `pm2 info server` or `pm2 monit`.
+
 ### Frontend
 
 If you just want to run and test the frontend, run `npm run react` which will start the frontend on `http://localhost:3000`. Currently as the API is public, you can also set `NODE_ENV='production'` to use the API live at `fundiescollab.com`.
