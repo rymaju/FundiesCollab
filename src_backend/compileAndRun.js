@@ -1,6 +1,6 @@
-const fs = require('fs')
+const { mkdir, writeFile } = require('fs')
 const path = require('path')
-const { execFile, exec } = require('child_process')
+const { execFile } = require('child_process')
 
 const appRoot = path.dirname(require.main.filename)
 const executionTimeoutMs = 15000 // 15 second timeout
@@ -10,25 +10,27 @@ const executionTimeoutMs = 15000 // 15 second timeout
  * @param {string} fileName the full file name of the java file
  * @param {string[]} examplesClasses a list example classes to be used for the Tester library
  * @param {string} javaCode the java code to be compiled
- * @param {string} roomId the room id
+ * @param {string} roomDir the room directory
  * @returns {string} the output of running the java code including runtime and compile time errors, or nothing on timeout
  */
-function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
+function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
   return new Promise(function (resolve, reject) {
-    exec('mkdir ' + roomId, (error, stdout, stderr) => {
-      fs.writeFile(roomId + '/' + fileName, javaCode, function (err) {
+    mkdir(roomDir, err => {
+      if (err) {
+        return reject(err)
+      }
+
+      writeFile(roomDir + '/' + fileName, javaCode, function (err) {
         if (err) {
           return reject(err)
         }
 
         const examplesClassesString = examplesClasses.join(' ')
-        const command = `"javac -cp .:tester.jar:javalib.jar -d ./${roomId} ./${roomId}/${fileName} && java -classpath ./${roomId}:tester.jar:javalib.jar tester.Main ${examplesClassesString}"`
-
-        console.log(command)
+        const command = `"javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClassesString}"`
 
         execFile(
           'docker',
-          [...dockerArguments(roomId), command],
+          [...dockerArguments(roomDir), command],
           { timeout: executionTimeoutMs },
           (error, stdout, stderr) => {
             if (error) {
@@ -45,18 +47,18 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
 }
 
 /**
- * Return arguments to use for running docker for a given roomId
- * @param roomId the roomId for this run
+ * Return arguments to use for running docker for a given roomDir
+ * @param roomDir the roomDir for this run
  * @returns {string[]} docker arguments
  */
-function dockerArguments (roomId) {
+function dockerArguments (roomDir) {
   return [
     'run',
     '-t',
     '--rm',
     '--workdir=/app',
     '--volume',
-    `${appRoot}/${roomId}:/app/${roomId}`,
+    `${appRoot}/${roomDir}:/app/${roomDir}`,
     '--volume',
     `${appRoot}/tester.jar:/app/tester.jar:ro`,
     '--volume',

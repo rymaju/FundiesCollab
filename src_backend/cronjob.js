@@ -1,4 +1,4 @@
-const deleteRoom = require('./deleteRoom')
+const { rmdir } = require('fs')
 
 function cronjobSetup (roomData) {
   var CronJob = require('cron').CronJob
@@ -14,7 +14,7 @@ function cronjobSetup (roomData) {
           const date = roomData[roomId].lastActiveDateTime
           if (oneWeekAgo > date) {
             delete roomData[roomId]
-            deleteRoom(roomId)
+            rmdir('room-' + roomId)
             console.log('deleted room ' + roomId)
           }
         }
