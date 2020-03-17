@@ -26,7 +26,8 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
         }
 
         const examplesClassesString = examplesClasses.join(' ')
-        const command = `"javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClassesString}"`
+        const command = `javac -cp .:tester.jar:javalib.jar -d ./${roomId} ./${roomId}/${fileName} && java -classpath ./${roomId}:tester.jar:javalib.jar tester.Main ${examplesClassesString}`
+
 
         execFile(
           'docker',
@@ -34,7 +35,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
           { timeout: executionTimeoutMs },
           (error, stdout, stderr) => {
             if (error) {
-              console.log('complation error')
+              console.log('compilation error')
               return resolve(stdout)
             }
             console.log('compiled without error')
