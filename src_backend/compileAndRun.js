@@ -14,6 +14,12 @@ const executionTimeoutMs = 15000 // 15 second timeout
  * @returns {string} the output of running the java code including runtime and compile time errors, or nothing on timeout
  */
 function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
+  // might want to be outside this function to return a better message or something?
+  const regex = /room-[a-z]+-[a-z]+-[0-9]+/
+  if (!regex.test(roomDir)) {
+    return ''
+  }
+  //room - [a - z] + -[a - z] + -[0 - 9] +
   return new Promise(function (resolve, reject) {
     mkdir(roomDir, err => {
       if (err && err.code !== 'EEXIST') {
