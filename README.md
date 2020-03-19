@@ -107,11 +107,11 @@ Many things can lead to a bad request error. Check the error message sent in the
 
 - Invalid file name
 
-  - Should be in the format "Name.java" and less than 50 char
+  - Should be in the format `"Name.java"` and less than 50 char
 
 - Invalid examplesClasses
 
-  - Should be a JSON list of strings like ["ExamplesX","ExamplesY","ExamplesZ"] and less than 100 char joined with spaces
+  - Should be a JSON list of strings like `["ExamplesX","ExamplesY","ExamplesZ"]` and less than 100 char joined with spaces
 
 - Invalid javaCode
 
