@@ -16,6 +16,7 @@
     "express-rate-limit": "^5.1.1",
     "haikunator": "^2.1.2",
     "helmet": "^3.21.3",
+    "ioredis": "^4.16.0",
     "js-file-download": "^0.4.10",
     "react": "^16.13.0",
     "react-codemirror": "^1.0.0",

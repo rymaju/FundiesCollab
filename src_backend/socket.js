@@ -1,12 +1,13 @@
 const socketIO = require('socket.io')
 
 const pm2io = require('@pm2/io')
+const roomData = require('./roomData')
 
 const counter = pm2io.counter({
   name: 'Active socket connections'
 })
 
-function socketSetup (server, roomData) {
+function socketSetup (server) {
   const io = socketIO(server)
 
   io.on('connection', socket => {
@@ -19,17 +20,20 @@ function socketSetup (server, roomData) {
     })
 
     socket.on('join room', function (data) {
-      socket.join(data.room)
-      if (roomData[data.room]) {
-        io.to(`${socket.id}`).emit('sync code', {
-          newCode: roomData[data.room].code
-        })
+      const roomId = data.room
 
-        roomData[data.room] = {
-          code: roomData[data.room].code,
-          lastActiveDateTime: new Date()
-        }
-      }
+      socket.join(roomId)
+
+      roomData
+        .get(roomId)
+        .then(newCode => {
+          if (newCode !== null) {
+            io.to(`${socket.id}`).emit('sync code', { newCode })
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
     })
 
     socket.on('leave room', data => {
@@ -37,14 +41,13 @@ function socketSetup (server, roomData) {
     })
 
     socket.on('send code', function (data) {
-      roomData[data.room] = {
-        code: data.newCode,
-        lastActiveDateTime: new Date()
-      }
+      const roomId = data.room
+      const newCode = data.newCode
+      roomData.set(roomId, newCode).catch(err => {
+        console.error(err)
+      })
 
-      socket.broadcast
-        .to(data.room)
-        .emit('sync code', { newCode: data.newCode })
+      socket.broadcast.to(roomId).emit('sync code', { newCode })
     })
   })
 }
