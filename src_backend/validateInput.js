@@ -22,12 +22,12 @@ function validateInput (req, res) {
     const javaCodeMaxLen = 25000
 
     if (!fileNameRegex.test(fileName) || fileName.length >= fileNameMaxLen) {
-      reject(new Error('Bad file name'))
+      reject(new Error(`Bad file name "${fileName}"`))
     } else if (
-      !examplesClassesRegex.test(fileName) ||
+      !examplesClassesRegex.test(examplesClasses) ||
       examplesClasses.length >= examplesClassesMaxLen
     ) {
-      reject(new Error('Bad examples class'))
+      reject(new Error(`Bad examples class: "${examplesClasses}"`))
     } else if (javaCode.length >= javaCodeMaxLen) {
       reject(
         new Error(
