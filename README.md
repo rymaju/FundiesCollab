@@ -31,7 +31,6 @@ npm start
 
 The app will be live at `http://localhost:5000`.
 
-
 Alternatively, you can also run the server using `pm2`, installed with `npm install -g pm2`.
 
 To start the server, run `pm2 start ecosystem.config.js`.
@@ -52,10 +51,10 @@ Request Body:
 
 ```
 {
-  fileName: STRING,
-  examplesClasses: [STRING],
-  javaCode: STRING,
-  roomId: STRING
+    fileName: STRING,
+    examplesClasses: [STRING],
+    javaCode: STRING,
+    roomId: STRING
 }
 ```
 
@@ -63,10 +62,10 @@ Request Body Example:
 
 ```
 {
-  fileName: 'Foo.java',
-  examplesClasses: ['ExamplesFoo'],
-  javaCode: 'public class Foo { ... }',
-  roomId: 'crunchy-pineapple-0115'
+    fileName: 'Foo.java',
+    examplesClasses: ['ExamplesFoo'],
+    javaCode: 'public class Foo { ... }',
+    roomId: 'crunchy-pineapple-0115'
 }
 ```
 
@@ -78,7 +77,7 @@ Response Body:
 
 ```
 {
-  out: STRING
+    out: STRING
 }
 ```
 
@@ -88,7 +87,7 @@ Code compiled and ran successfully with Tester Library
 
 ```
 {
-  out: 'Tester Library 3.0 ...'
+    out: 'Tester Library 3.0 ...'
 }
 ```
 
@@ -96,7 +95,7 @@ Code did not compile
 
 ```
 {
-  out: '...Foo.java:1: error: package tester does not exist...'
+    out: '...Foo.java:1: error: package tester does not exist...'
 }
 ```
 
