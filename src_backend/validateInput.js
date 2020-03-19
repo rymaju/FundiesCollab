@@ -1,4 +1,4 @@
-const roomData = require('./src_backend/roomData')
+const roomData = require('./roomData')
 
 /**
  * Validates the request body parameters and returns the validated body
