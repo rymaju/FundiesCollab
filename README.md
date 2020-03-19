@@ -119,7 +119,7 @@ Many things can lead to a bad request error. Check the error message sent in the
 
 - Java execution timed out
 
-  - Validation, compilation, and execution should take less than 20 seconds
+  - Compilation and execution should take less than 15 seconds
 
 #### `429 Too Many Requests`
 
