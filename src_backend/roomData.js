@@ -9,9 +9,8 @@ class RoomData {
    * @param {number} lifespan the time until a room expires, reset on every operation, in seconds
    * @returns {RoomData} the new RoomData connection
    */
-  RoomData (redis, capacity, lifespan) {
+  constructor (redis, lifespan) {
     this.redis = redis
-    this.capacity = capacity
     this.lifespan = lifespan
   }
 
@@ -21,6 +20,9 @@ class RoomData {
    * @returns {Promise<string>} a promise resolving in the code at the given room
    */
   get (roomId) {
+    console.log(this.redis)
+    console.log(this.lifespan)
+
     return new Promise((resolve, reject) => {
       this.redis
         .get(roomId)
@@ -88,6 +90,6 @@ class RoomData {
   }
 }
 
-const roomData = new RoomData(new Redis(), 500, 60 * 60 * 24 * 7)
+const roomData = new RoomData(new Redis(), 60 * 60 * 24 * 7)
 
 module.exports = roomData
