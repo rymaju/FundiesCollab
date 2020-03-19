@@ -7,6 +7,10 @@ const compileRouter = require('./compileRouter')
 
 const appRoot = path.dirname(require.main.filename)
 
+/**
+ * Initalizes the express app
+ * @returns the express app
+ */
 function init () {
   const app = express()
 
@@ -15,7 +19,7 @@ function init () {
     max: 20 // limit each IP to 20 requests per 10 minutes
   })
 
-  app.use(cors()) // Here we protect against XSS by whitelisting origins
+  app.use(cors()) // Here we enable cors
   app.use(helmet()) // helmet is a medley of security middleware to better protect our app
   app.use(express.json()) // Built in body-parser for reading request JSON bodies
   app.use('/api/', apiLimiter) // use the apiLimiter only on routes beginning with /api

@@ -1,43 +1,67 @@
 const router = require('express').Router()
-const compileAndRun = require('./compileAndRun')
 const pm2io = require('@pm2/io')
+
+const compileAndRun = require('./compileAndRun')
+const validateInput = require('./validateInput')
 
 const histogram = pm2io.histogram({
   name: 'java latency',
   measurement: 'mean'
 })
 
-router.route('/java').post((req, res) => {
-  const fileName = req.body.fileName
-  const examplesClasses = req.body.examplesClasses
-  const javaCode = req.body.javaCode
-  const roomId = req.body.roomId
+/**
+ * ends the timer and adds the value to the histogram
+ * @param {[number, number]} hrStart the start of the timer given by process.hrtime()
+ * @returns {void}
+ */
+function endTimer (hrstart) {
+  const hsEnd = process.hrtime(hrstart)
+  console.log(`${hsEnd[1] / 100000}ms`)
+  histogram.update(hsEnd[1] / 100000)
+}
 
+router.route('/java').post((req, res) => {
   const hrstart = process.hrtime()
 
-  compileAndRun(fileName, examplesClasses, javaCode, 'room-' + roomId)
-    .then(out => {
-      console.log(`Request from room-${roomId} took:`)
-      const hsEnd = process.hrtime(hrstart)
-      console.log(`${hsEnd[1] / 100000}ms`)
-      histogram.update(hsEnd[1] / 100000)
+  validateInput(req, res)
+    .then(input => {
+      compileAndRun(
+        input.fileName,
+        input.examplesClasses,
+        input.javaCode,
+        'room-' + input.roomId
+      )
+        .then(out => {
+          console.log(`Request from room-${input.roomId} took:`)
+          endTimer(hrstart)
 
-      if (out === '') {
-        res.status(400).end()
-      } else {
-        res
-          .status(200)
-          .json({ out })
-          .end()
-      }
+          if (out === '') {
+            res
+              .status(400)
+              .json(new Error('Java execution timed out'))
+              .end()
+          } else {
+            res
+              .status(200)
+              .json({ out })
+              .end()
+          }
+        })
+        .catch(err => {
+          console.error(`Error in room ${input.roomId}: ${err}`)
+          endTimer(hrstart)
+
+          res.status(500).end()
+        })
     })
     .catch(err => {
-      console.log(`Error in room ${roomId}: ${err}`)
-      const hsEnd = process.hrtime(hrstart)
-      console.log(`${hsEnd[1] / 100000}ms`)
-      histogram.update(hsEnd[1] / 100000)
+      console.error(`Bad request ${err}`)
+      endTimer(hrstart)
 
-      res.status(500).end()
+      res
+        .status(400)
+        .json(err)
+        .end()
     })
 })
 

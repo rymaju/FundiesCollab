@@ -12,6 +12,10 @@ Code is shared in "rooms" that can be joined or shared by URL. Socket.io is used
 
 Code is sent as a POST request from the user's browser to the backend when they hit "Compile". The backend then writes the code to a file, compiles and runs it with the Tester and Image libraries (inside a docker container to prevent damage from arbitrary code execution), then returns stdout.
 
+Data for rooms is stored on the server in a Redis database. We chose Redis for its fast read/write operations and expiration features.
+
+If youre interested in the security aspects, see the Security section below.
+
 ## Run Locally
 
 ### Frontend & Backend
@@ -93,7 +97,17 @@ Code did not compile
 
 ```
 #### `400 Bad Request`
-The submitted code took too long to run. Currently, your program must compile in 10 seconds or less and execute in 20 seconds or less.
+Many things can lead to a bad request error. Check the error message sent in the response body for a detailed explanation. CUrrently the following problems can lead to a 400 error:
+
+- Missing request body
+- Invalid file name
+	- Should be in the format "Name.java" and less than 50 char
+- Invalid examplesClasses
+	- Should be a JSON list of strings like ["ExamplesX","ExamplesY","ExamplesZ"] and less than 100 char joined with spaces
+- Invalid javaCode
+	- Should be less than 25000 char
+- Java execution timed out
+	- Validation, compilation, and execution should take less than 20 seconds
 
 #### `429 Too Many Requests`
 
@@ -103,3 +117,25 @@ The API is rate limited to 20 requests every 10 minutes. If for some reason you 
 
 Something terribly terribly wrong has occurred. Shoot me an email so I can fix it.
 ```
+
+## Security
+
+### Remote Code Execution
+
+An app of this nature has to be especially sensitive to security concerns. Executing whatever arbitrary code the user uploads is as dangerous as it gets, so steps have been taken to eliminate the possibly of RCE (Remote Code Execution).
+
+When users POST their code to the server as a request body, the server will create a directory for that room and write the given code to a file named by the user. The commands for these actions (fs.mkdir and fs.writeFile) are immune to command injection, although they should be sanitized to prevent unexpected behavior. For example, ensuring that mkdir is only called on a string with no spaces.
+
+A docker container is then spun up which includes access to the library jar files and the room directory. This effectively protects the rest of the system from whatever malicious code may be executed in the java file. If the user did attempt to run commands from inside the container, the worst they could do is crash the container. The other resources available from within the docker container should be readOnly, and therefore immune to any modification.
+
+### Denial of Service / Memory Attacks
+
+The threat of denial of service attacks is two-fold: crippling the site such that no users can actually use the site, and deleting all saved work on the site. Under no circumstances should a barrage of request crash the application (or worse, the VPS that runs the application).
+
+Conservative rate limiting is put in place to make sure that nobody can just spam the API. On the client side React app, the compile button is disabled until a response is recieved from the server.
+
+Even with rate limiting, an attacker could still crash the application by sending enough requests to overflow the RAM capacity of Redis and our VPS, which would result in either Redis crashing and flushing, our VPS crashing, or both.
+
+Therefore, we set a `maxmemory 100mb` in our Redis config file, so that Redis will never use more than 100mb of data. This is sufficent for our expected number of users and the amount of RAM that we bought for our VPS.
+
+Another potential attack could be to write an immensely long string for fileName, examplesClasses, or javaCode. If succcessful it would waste a lot of resources, both disk space and computing power. Verification of the request body must enforce that all of the given strings are below an appropriate threshold.

@@ -8,18 +8,12 @@ const executionTimeoutMs = 15000 // 15 second timeout
 /**
  * Compiles and runs the given java file through its example classes, returning the output or nothing on timeout
  * @param {string} fileName the full file name of the java file
- * @param {string[]} examplesClasses a list example classes to be used for the Tester library
+ * @param {string} examplesClasses a space delimited list of example classes to be used for the Tester library
  * @param {string} javaCode the java code to be compiled
  * @param {string} roomDir the room directory
- * @returns {string} the output of running the java code including runtime and compile time errors, or nothing on timeout
+ * @returns {Promise<string>} the output of running the java code including runtime and compile time errors, or nothing on timeout
  */
 function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
-  // might want to be outside this function to return a better message or something?
-  const regex = /room-[a-z]+-[a-z]+-[0-9]+/
-  if (!regex.test(roomDir)) {
-    return ''
-  }
-  //room - [a - z] + -[a - z] + -[0 - 9] +
   return new Promise(function (resolve, reject) {
     mkdir(roomDir, err => {
       if (err && err.code !== 'EEXIST') {
@@ -31,8 +25,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
           return reject(err)
         }
 
-        const examplesClassesString = examplesClasses.join(' ')
-        const command = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClassesString}`
+        const command = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
 
         execFile(
           'docker',
@@ -54,7 +47,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
 
 /**
  * Return arguments to use for running docker for a given roomDir
- * @param roomDir the roomDir for this run
+ * @param roomDir the room directory for this run
  * @returns {string[]} docker arguments
  */
 function dockerArguments (roomDir) {
