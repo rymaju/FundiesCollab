@@ -22,7 +22,7 @@ If youre interested in the security aspects, see the [Security](#Security) secti
 
 Make sure your system has Git, Node.js, Redis, Java and Docker installed then run the following commands:
 
-```
+```sh
 git clone https://github.com/rymaju/FundiesCollab.git
 npm install
 npm run build
@@ -49,7 +49,7 @@ The backend can be accessed at `fundiescollab.com/api/compile/`.
 
 Request Body:
 
-```
+```js
 {
     fileName: STRING,
     examplesClasses: [STRING],
@@ -60,7 +60,7 @@ Request Body:
 
 Request Body Example:
 
-```
+```js
 {
     fileName: 'Foo.java',
     examplesClasses: ['ExamplesFoo'],
@@ -75,7 +75,7 @@ The API will respond `200 OK` on successful compilation and runs, runtime errors
 
 Response Body:
 
-```
+```js
 {
     out: STRING
 }
@@ -85,7 +85,7 @@ Example Response Body:
 
 Code compiled and ran successfully with Tester Library
 
-```
+```js
 {
     out: 'Tester Library 3.0 ...'
 }
@@ -93,7 +93,7 @@ Code compiled and ran successfully with Tester Library
 
 Code did not compile
 
-```
+```js
 {
     out: '...Foo.java:1: error: package tester does not exist...'
 }
