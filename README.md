@@ -10,11 +10,11 @@ Built with ReactJS and Express, hosted on a DigitalOcean droplet. Uses Northeast
 
 Code is shared in "rooms" that can be joined or shared by URL. Socket.io is used to create and connect these rooms. Changes to the code are broadcast to everyone in the room, and also stored in the backend, so you can leave and come back to the same code.
 
-Code is sent as a POST request from the user's browser to the backend when they hit "Compile". The backend then writes the code to a file, compiles and runs it with the Tester and Image libraries (inside a docker container to prevent damage from arbitrary code execution), then returns stdout.
+Code is sent as a `POST` request from the user's browser to the backend when they hit "Compile". The backend then writes the code to a file, compiles and runs it with the Tester and Image libraries (inside a docker container to prevent damage from arbitrary code execution), then returns stdout.
 
 Data for rooms is stored on the server in a Redis database. We chose Redis for its fast read/write operations and expiration features.
 
-If youre interested in the security aspects, see the Security section below.
+If youre interested in the security aspects, see the [Security](#Security) section below.
 
 ## Run Locally
 
@@ -31,21 +31,12 @@ npm start
 
 The app will be live at `http://localhost:5000`.
 
-Alternatively, you can also run the server using `pm2`, installed with
 
-`npm install -g pm2`
+Alternatively, you can also run the server using `pm2`, installed with `npm install -g pm2`.
 
-by running
+To start the server, run `pm2 start ecosystem.config.js`.
 
-`pm2 start ecosystem.config.js`.
-
-This offers the advantage of being able to see metrics by using the commands
-
-`pm2 info server`
-
-or
-
-`pm2 monit`.
+This offers the advantage of being able to see metrics by using the commands `pm2 info server` or `pm2 monit`.
 
 ### Frontend
 
@@ -53,7 +44,7 @@ If you just want to run and test the frontend, run `npm run react` which will st
 
 ## API
 
-The backend can be accessed anywhere at `fundiescollab.com/api/compile/`.
+The backend can be accessed at `fundiescollab.com/api/compile/`.
 
 ### `POST fundiescollab.com/api/compile/java`
 
@@ -61,10 +52,10 @@ Request Body:
 
 ```
 {
-	fileName: String,
-	examplesClasses: [String],
-	javaCode: String,
-	roomId: String
+  fileName: STRING,
+  examplesClasses: [STRING],
+  javaCode: STRING,
+  roomId: STRING
 }
 ```
 
@@ -72,10 +63,10 @@ Request Body Example:
 
 ```
 {
-	fileName: 'Foo.java',
-	examplesClasses: ['ExamplesFoo'],
-	javaCode: 'public class Foo { ... }',
-	roomId: 'crunchy-pineapple-0115'
+  fileName: 'Foo.java',
+  examplesClasses: ['ExamplesFoo'],
+  javaCode: 'public class Foo { ... }',
+  roomId: 'crunchy-pineapple-0115'
 }
 ```
 
@@ -87,7 +78,7 @@ Response Body:
 
 ```
 {
-	out: String
+  out: STRING
 }
 ```
 
@@ -97,7 +88,7 @@ Code compiled and ran successfully with Tester Library
 
 ```
 {
-	out: 'Tester Library 3.0 ...'
+  out: 'Tester Library 3.0 ...'
 }
 ```
 
@@ -105,7 +96,7 @@ Code did not compile
 
 ```
 {
-    out: '...Foo.java:1: error: package tester does not exist...'
+  out: '...Foo.java:1: error: package tester does not exist...'
 }
 ```
 
