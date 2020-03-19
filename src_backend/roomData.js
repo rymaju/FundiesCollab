@@ -27,6 +27,7 @@ class RoomData {
       this.redis
         .get(roomId)
         .then(code => {
+          // code will be null if no key roomId exists, would rather make an optional instead
           this.redis.expire(roomId, this.lifespan)
           resolve(code)
         })

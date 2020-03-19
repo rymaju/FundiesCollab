@@ -27,7 +27,9 @@ function socketSetup (server) {
       roomData
         .get(roomId)
         .then(newCode => {
-          io.to(`${socket.id}`).emit('sync code', { newCode })
+          if (newCode !== null) {
+            io.to(`${socket.id}`).emit('sync code', { newCode })
+          }
         })
         .catch(err => {
           console.error(err)
