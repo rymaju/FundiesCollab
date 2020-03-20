@@ -21,6 +21,8 @@ function endTimer (hrstart) {
 }
 
 router.route('/java').post((req, res) => {
+  console.log('new request')
+
   const hrstart = process.hrtime()
 
   validateInput(req, res)
@@ -36,6 +38,7 @@ router.route('/java').post((req, res) => {
           endTimer(hrstart)
 
           if (out === '') {
+            console.log('timeout! returning 400')
             res
               .status(400)
               .json(new Error('Java execution timed out'))

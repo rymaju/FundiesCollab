@@ -33,6 +33,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
           { timeout: executionTimeoutMs },
           (error, stdout, stderr) => {
             if (error) {
+              console.log(error)
               console.log('compilation error')
               return resolve(stdout)
             }
