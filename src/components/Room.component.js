@@ -131,7 +131,8 @@ class Room extends Component {
         })
       })
       .catch(error => {
-        if (error.response.err === undefined) {
+        console.log(error.response.data)
+        if (error.response === undefined) {
           this.setState({
             output:
               'We cant seem to connect to our servers, sorry! In the meantime, you can download your code and work offline.',
