@@ -34,36 +34,24 @@ router.route('/java').post((req, res) => {
         input.javaCode,
         'room-' + input.roomId
       )
-        .then(out => {
-          console.log(`Request from room-${input.roomId} took:`)
-          endTimer(hrStart)
-
-          if (out === '') {
-            res
-              .status(400)
-              .json({ err: 'Java execution timed out' })
-              .end()
-          } else {
-            res
-              .status(200)
-              .json({ out })
-              .end()
-          }
-        })
-        .catch(err => {
-          console.error(`Error in room ${input.roomId}: ${err}`)
-          endTimer(hrStart)
-
-          res.status(500).end()
-        })
+    })
+    .then(out => {
+      console.log(`Request from room-${req.body.roomId} took:`)
+      endTimer(hrStart)
+      res
+        .status(200)
+        .json({ out })
+        .end()
     })
     .catch(err => {
       console.error(err)
       endTimer(hrStart)
 
       res
-        .status(400)
-        .json({ err: err.toString() })
+        .status(err.status)
+        .json({
+          err: err.status === 500 ? 'Internal Server Error' : err.message
+        })
         .end()
     })
 })
