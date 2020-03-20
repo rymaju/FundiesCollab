@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const pm2io = require('@pm2/io')
+const { rmdir } = require('fs')
 
 const compileAndRun = require('./compileAndRun')
 const validateInput = require('./validateInput')
@@ -23,6 +24,24 @@ function endTimer (hrStart) {
   histogram.update(timeMs)
 }
 
+/**
+ * asyncronously removes the directory associated with the given room ID
+ * @param {string} roomId
+ */
+async function deleteRoom (roomId) {
+  // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
+  // because whoever uses the dir last will eventually remove it
+  const roomDir = 'room-' + roomId
+
+  rmdir(roomDir, { recursive: true }, err => {
+    if (err) {
+      console.error(err)
+    } else {
+      console.log(`removed ${roomDir}`)
+    }
+  })
+}
+
 router.route('/java').post((req, res) => {
   const hrStart = process.hrtime()
 
@@ -35,26 +54,28 @@ router.route('/java').post((req, res) => {
         'room-' + input.roomId
       )
         .then(out => {
-          console.log(`Request from room-${input.roomId} took:`)
+          console.log(`Request from room-${req.body.roomId} took:`)
           endTimer(hrStart)
 
-          if (out === '') {
-            res
-              .status(400)
-              .json({ err: 'Java execution timed out' })
-              .end()
-          } else {
-            res
-              .status(200)
-              .json({ out })
-              .end()
-          }
+          deleteRoom(input.roomId)
+
+          res
+            .status(200)
+            .json({ out })
+            .end()
         })
         .catch(err => {
-          console.error(`Error in room ${input.roomId}: ${err}`)
+          console.error(err)
           endTimer(hrStart)
 
-          res.status(500).end()
+          deleteRoom(input.roomId)
+
+          res
+            .status(err.status)
+            .json({
+              err: err.status === 500 ? 'Internal Server Error' : err.message
+            })
+            .end()
         })
     })
     .catch(err => {
@@ -62,8 +83,10 @@ router.route('/java').post((req, res) => {
       endTimer(hrStart)
 
       res
-        .status(400)
-        .json({ err: err.toString() })
+        .status(err.status)
+        .json({
+          err: err.status === 500 ? 'Internal Server Error' : err.message
+        })
         .end()
     })
 })

@@ -1,12 +1,13 @@
 const { mkdir, writeFile } = require('fs')
 const path = require('path')
 const { execFile } = require('child_process')
+const createError = require('http-errors')
 
 const appRoot = path.dirname(require.main.filename)
 const executionTimeoutMs = 15000 // 15 second timeout
 
 /**
- * Compiles and runs the given java file through its example classes, returning the output or nothing on timeout
+ * Compiles and runs the given java file through its example classes, or on rejection returns an http-error
  * @param {string} fileName the full file name of the java file
  * @param {string} examplesClasses a space delimited list of example classes to be used for the Tester library
  * @param {string} javaCode the java code to be compiled
@@ -17,12 +18,12 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
   return new Promise(function (resolve, reject) {
     mkdir(roomDir, err => {
       if (err && err.code !== 'EEXIST') {
-        return reject(err)
+        return reject(createError(500, 'Error creating room directory'))
       }
 
       writeFile(roomDir + '/' + fileName, javaCode, function (err) {
         if (err) {
-          return reject(err)
+          return reject(createError(500, 'Error writing java file'))
         }
 
         const command = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
@@ -36,7 +37,7 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
               console.log(error)
               if (error.killed) {
                 // process was killed by timeout
-                return resolve('')
+                return reject(createError(400, 'Java execution timed out'))
               }
 
               console.log('compilation error')

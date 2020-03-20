@@ -71,11 +71,9 @@ class Room extends Component {
 
   handleFileChange (event) {
     this.setState({ fileName: event.target.value })
-    //console.log(this.state)
   }
   handleExamplesChange (event) {
     this.setState({ examplesClasses: event.target.value.split(' ') })
-    //console.log(this.state)
   }
   handleCodeChange (editor, data, value) {
     this.setState({ javaCode: value })
@@ -112,8 +110,6 @@ class Room extends Component {
       disableButton: true
     })
 
-    //console.log(this.state.javaCode)
-
     axios
       .post(
         process.env.NODE_ENV === 'production'
@@ -135,16 +131,19 @@ class Room extends Component {
         })
       })
       .catch(error => {
-        console.log(error)
-        console.log(JSON.stringify(error))
-
-        if (error === undefined || error.response === undefined) {
+        console.log(error.response.data.err)
+        if (error.response.data.err === undefined) {
           this.setState({
             output:
               'We cant seem to connect to our servers, sorry! In the meantime, you can download your code and work offline.',
             disableButton: false
           })
-        } else if (error.response.status === 400) {
+        } else if (error.response.status === 507) {
+          this.setState({
+            output: `Uh oh, it looks like our servers are at max capacity! Your work cannot be compiled or saved. Email me at ryan.matthew.jung@gmail.com to let me know there's a problem.In the meantime, you can download your code and work offline.`,
+            disableButton: false
+          })
+        } else if (error.response.data.err === 'Java execution timed out') {
           this.setState({
             output:
               'Your code took way too long to execute! Look for infinite loops or recursion and try again.',
