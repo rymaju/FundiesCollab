@@ -143,10 +143,10 @@ A docker container is then spun up which includes access to the library jar file
 
 The threat of denial of service attacks is two-fold: crippling the site such that no users can actually use the site, and deleting all saved work on the site. Under no circumstances should a barrage of request crash the application (or worse, the VPS that runs the application).
 
-Conservative rate limiting is put in place to make sure that nobody can just spam the API. On the client side React app, the compile button is disabled until a response is received from the server.
+Conservative rate limiting is put in place to make sure that nobody can just spam the API. Users are allowed to make 20 requests over 10 minutes. On the client side React app, the compile button is disabled until a response is received from the server.
 
 Even with rate limiting, an attacker could still crash the application by sending enough requests to overflow the RAM capacity of Redis and our VPS, which would result in either Redis crashing and flushing, our VPS crashing, or both.
 
-Therefore, we set a `maxmemory 100mb` in our Redis config file, so that Redis will never use more than 100mb of data. This is sufficient for our expected number of users and the amount of RAM that we bought for our VPS.
+Therefore, we set a `maxmemory 100mb` in our Redis config file, so that Redis will never use more than 100mb of space. This is sufficient for our expected number of users and the amount of RAM that we bought for our VPS.
 
 Another potential attack could be to write an immensely long string for `fileName`, `examplesClasses`, or `javaCode`. If successful it would waste a lot of resources, both disk space and computing power. Verification of the request body must enforce that all of the given strings are below an appropriate threshold.
