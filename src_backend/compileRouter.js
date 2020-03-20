@@ -38,7 +38,7 @@ function handleSuccessfulCompile (res, output, roomId) {
 
   res
     .status(200)
-    .json({ output })
+    .json({ out: output })
     .end()
 }
 
