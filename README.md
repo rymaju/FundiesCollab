@@ -20,7 +20,7 @@ If youre interested in the security aspects, see the [Security](#Security) secti
 
 ### Frontend & Backend
 
-Make sure your system has Git, Node.js, Redis, Java and Docker installed then run the following commands:
+Make sure your system has Git, Node.js(>12.xx.xx), Redis, Java and Docker installed then run the following commands:
 
 ```sh
 git clone https://github.com/rymaju/FundiesCollab.git
@@ -77,7 +77,7 @@ Response Body:
 
 ```js
 {
-    out: STRING
+  out: STRING
 }
 ```
 
@@ -87,7 +87,7 @@ Code compiled and ran successfully with Tester Library
 
 ```js
 {
-    out: 'Tester Library 3.0 ...'
+  out: 'Tester Library 3.0 ...'
 }
 ```
 
@@ -95,7 +95,7 @@ Code did not compile
 
 ```js
 {
-    out: '...Foo.java:1: error: package tester does not exist...'
+  out: '...Foo.java:1: error: package tester does not exist...'
 }
 ```
 
