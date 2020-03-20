@@ -24,6 +24,10 @@ function endTimer (hrStart) {
   histogram.update(timeMs)
 }
 
+/**
+ * asyncronously removes the directory associated with the given room ID
+ * @param {string} roomId
+ */
 async function deleteRoom (roomId) {
   // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
   // because whoever uses the dir last will eventually remove it
