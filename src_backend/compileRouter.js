@@ -55,7 +55,7 @@ router.route('/java').post(async (req, res) => {
       javaCode,
       roomId
     )
-
+    console.log('output:' + output)
     handleSuccessfulCompile(res, output, roomId)
   } catch (error) {
     handleHttpError(res, error)
