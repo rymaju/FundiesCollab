@@ -24,6 +24,7 @@ router.route('/java').post((req, res) => {
   console.log('new request')
 
   const hrstart = process.hrtime()
+  console.log(new Date())
 
   validateInput(req, res)
     .then(input => {
@@ -37,6 +38,9 @@ router.route('/java').post((req, res) => {
           console.log(`Request from room-${input.roomId} took:`)
           endTimer(hrstart)
 
+          console.log(new Date())
+
+          console.log(process.hrtime(hrstart))
           if (out === '') {
             res
               .status(400)
