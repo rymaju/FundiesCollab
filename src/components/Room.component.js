@@ -131,6 +131,7 @@ class Room extends Component {
         })
       })
       .catch(error => {
+        console.log(error.response.data.err)
         if (error.response.data.err === undefined) {
           this.setState({
             output:
