@@ -20,9 +20,6 @@ class RoomData {
    * @returns {Promise<string>} a promise resolving in the code at the given room
    */
   get (roomId) {
-    console.log(this.redis)
-    console.log(this.lifespan)
-
     return new Promise((resolve, reject) => {
       this.redis
         .get(roomId)

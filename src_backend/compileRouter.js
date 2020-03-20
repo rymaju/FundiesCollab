@@ -14,14 +14,17 @@ const histogram = pm2io.histogram({
  * @param {[number, number]} hrStart the start of the timer given by process.hrtime()
  * @returns {void}
  */
-function endTimer (hrstart) {
-  const hsEnd = process.hrtime(hrstart)
-  console.log(`${hsEnd[1] / 100000}ms`)
-  histogram.update(hsEnd[1] / 100000)
+function endTimer (hrStart) {
+  const hsEnd = process.hrtime(hrStart)
+  const secondsAsMs = hsEnd[0] * 1000
+  const nanoAsMs = hsEnd[1] / 1000000
+  const timeMs = secondsAsMs + nanoAsMs
+  console.log(`${timeMs}ms`)
+  histogram.update(timeMs)
 }
 
 router.route('/java').post((req, res) => {
-  const hrstart = process.hrtime()
+  const hrStart = process.hrtime()
 
   validateInput(req, res)
     .then(input => {
@@ -33,12 +36,12 @@ router.route('/java').post((req, res) => {
       )
         .then(out => {
           console.log(`Request from room-${input.roomId} took:`)
-          endTimer(hrstart)
+          endTimer(hrStart)
 
           if (out === '') {
             res
               .status(400)
-              .json(new Error('Java execution timed out'))
+              .json({ err: 'Java execution timed out' })
               .end()
           } else {
             res
@@ -49,18 +52,18 @@ router.route('/java').post((req, res) => {
         })
         .catch(err => {
           console.error(`Error in room ${input.roomId}: ${err}`)
-          endTimer(hrstart)
+          endTimer(hrStart)
 
           res.status(500).end()
         })
     })
     .catch(err => {
-      console.error(`Bad request ${err}`)
-      endTimer(hrstart)
+      console.error(err)
+      endTimer(hrStart)
 
       res
         .status(400)
-        .json(err)
+        .json({ err: err.toString() })
         .end()
     })
 })
