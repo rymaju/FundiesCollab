@@ -28,7 +28,9 @@ function deleteRoom (roomId) {
   // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
   // because whoever uses the dir last will eventually remove it
   const roomDir = 'room-' + roomId
-  rmdir(roomDir, { recursive: true }, err => console.error(err))
+  rmdir(roomDir, { recursive: true }, err => {
+    console.error(err)
+  })
 }
 
 router.route('/java').post((req, res) => {
