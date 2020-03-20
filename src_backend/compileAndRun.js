@@ -45,8 +45,8 @@ async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
       [...dockerArguments(roomDir), command],
       { timeout: executionTimeoutMs }
     )
-    console.log("stdout:" + stdout)
-    console.log("stderr:" + stderr)
+    console.log('stdout:' + stdout)
+    console.log('stderr:' + stderr)
 
     console.log('compiled and run successfully')
     return stdout
@@ -113,6 +113,7 @@ function handleWriteFileError (err) {
 }
 
 function handleExecFileError (err) {
+  console.error(err)
   if (err.killed) {
     // process was killed by timeout
     throw createError(400, 'Java execution timed out')
