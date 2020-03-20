@@ -98,6 +98,7 @@ function deleteRoom (roomDir) {
 }
 
 function handleMakeDirectoryError (err) {
+  console.error(err)
   if (err && err.code !== 'EEXIST') {
     throw createError(
       400,
@@ -109,9 +110,9 @@ function handleMakeDirectoryError (err) {
 }
 
 function handleWriteFileError (err) {
+  console.error(err)
   throw createError(500, 'Error writing java file')
 }
-
 function handleExecFileError (err) {
   console.error(err)
   if (err.error.killed) {
