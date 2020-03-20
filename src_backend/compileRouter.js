@@ -38,10 +38,9 @@ router.route('/java').post((req, res) => {
           endTimer(hrstart)
 
           if (out === '') {
-            console.log('timeout! returning 400')
             res
               .status(400)
-              .json(new Error('Java execution timed out'))
+              .json({ err: 'Java execution timed out' })
               .end()
           } else {
             res
@@ -58,12 +57,12 @@ router.route('/java').post((req, res) => {
         })
     })
     .catch(err => {
-      console.error(`Bad request ${err}`)
+      console.error(err)
       endTimer(hrstart)
 
       res
         .status(400)
-        .json(err)
+        .json({ err: err.toString() })
         .end()
     })
 })

@@ -34,6 +34,11 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
           (error, stdout, stderr) => {
             if (error) {
               console.log(error)
+              if (error.killed) {
+                // process was killed by timeout
+                return resolve('')
+              }
+
               console.log('compilation error')
               return resolve(stdout)
             }
