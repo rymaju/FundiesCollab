@@ -17,78 +17,37 @@ class RoomData {
   /**
    * Gets the code at the given room id and resets expiration
    * @param {string} roomId the room id
-   * @returns {Promise<string>} a promise resolving in the code at the given room
+   * @returns {Promise<string|null|Error>} a promise resolving in the code at the given room
    */
-  get (roomId) {
-    return new Promise((resolve, reject) => {
-      this.redis
-        .get(roomId)
-        .then(code => {
-          // code will be null if no key roomId exists, would rather make an optional instead
-          if (code === null) {
-            resolve(null)
-          } else {
-            this.redis.expire(roomId, this.lifespan)
-            resolve(code)
-          }
-        })
-        .catch(err => {
-          console.error(err)
-          reject(new Error('Internal redis store error:' + err))
-        })
-    })
+  async get (roomId) {
+    try {
+      const code = await this.redis.get(roomId)
+
+      if (code === null) {
+        return null
+      } else {
+        this.redis.expire(roomId, this.lifespan)
+        return code
+      }
+    } catch (error) {
+      throw new Error('Internal redis store error:' + error)
+    }
   }
 
   /**
    * Sets the code at the given room id to the given code and resets expiration
    * @param {string} roomId the room id
    * @param {string} code the new code
-   * @returns {Promise<string>} a promise resolving in the 'OK' response when the operation completes
+   * @returns {Promise<void|Error>} a promise resolving in the 'OK' response when the operation completes
    * */
-  set (roomId, code) {
-    return new Promise((resolve, reject) => {
-      this.redis
-        .set(roomId, code)
-        .then(success => {
-          this.redis.expire(roomId, this.lifespan)
-          resolve(success)
-        })
-        .catch(err => {
-          console.error(err)
-          reject(new Error('Internal redis store error:' + err))
-        })
-    })
-  }
-
-  /**
-   * Gets the size the of the roomData hashMap
-   * @returns {Promise<number>} a promise resolving in the size of roomData
-   * */
-  size () {
-    return new Promise((resolve, reject) => {
-      this.redis
-        .hlen(this.name)
-        .then(count => resolve(count))
-        .catch(err => {
-          console.error(err)
-          throw new Error('Internal redis store error:' + err)
-        })
-    })
-  }
-
-  /**
-   * Gets the size the of the roomData hashMap
-   * @returns {Promise<boolean>} a promise resolving in whether the total number of rooms exceeds capacity
-   * */
-  isFull () {
-    return new Promise((resolve, reject) => {
-      this.size()
-        .then(count => resolve(count > this.capacity))
-        .catch(err => {
-          console.error(err)
-          throw new Error('Internal redis store error:' + err)
-        })
-    })
+  async set (roomId, code) {
+    try {
+      this.redis.set(roomId, code)
+      this.redis.expire(roomId, this.lifespan)
+    } catch (error) {
+      console.error(error)
+      throw new Error('Internal redis store error:' + error)
+    }
   }
 }
 

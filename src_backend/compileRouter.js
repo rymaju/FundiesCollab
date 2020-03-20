@@ -1,6 +1,5 @@
 const router = require('express').Router()
 const pm2io = require('@pm2/io')
-const { rmdir } = require('fs')
 
 const compileAndRun = require('./compileAndRun')
 const validateInput = require('./validateInput')
@@ -24,71 +23,39 @@ function endTimer (hrStart) {
   histogram.update(timeMs)
 }
 
-/**
- * asyncronously removes the directory associated with the given room ID
- * @param {string} roomId
- */
-async function deleteRoom (roomId) {
-  // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
-  // because whoever uses the dir last will eventually remove it
-  const roomDir = 'room-' + roomId
-
-  rmdir(roomDir, { recursive: true }, err => {
-    if (err) {
-      console.error(err)
-    } else {
-      console.log(`removed ${roomDir}`)
-    }
-  })
+function handleHttpError (res, httpError) {
+  console.error(httpError)
+  res
+    .status(httpError.status)
+    .json({
+      err:
+        httpError.status === 500 ? 'Internal Server Error' : httpError.message
+    })
+    .end()
 }
 
 router.route('/java').post((req, res) => {
   const hrStart = process.hrtime()
 
-  validateInput(req, res)
-    .then(input => {
-      compileAndRun(
-        input.fileName,
-        input.examplesClasses,
-        input.javaCode,
-        'room-' + input.roomId
-      )
-        .then(out => {
-          console.log(`Request from room-${req.body.roomId} took:`)
-          endTimer(hrStart)
-
-          deleteRoom(input.roomId)
-
-          res
-            .status(200)
-            .json({ out })
-            .end()
-        })
-        .catch(err => {
-          console.error(err)
-          endTimer(hrStart)
-
-          deleteRoom(input.roomId)
-
-          res
-            .status(err.status)
-            .json({
-              err: err.status === 500 ? 'Internal Server Error' : err.message
-            })
-            .end()
-        })
-    })
-    .catch(err => {
-      console.error(err)
-      endTimer(hrStart)
-
-      res
-        .status(err.status)
-        .json({
-          err: err.status === 500 ? 'Internal Server Error' : err.message
-        })
-        .end()
-    })
+  try {
+    const { fileName, examplesClasses, javaCode, roomId } = validateInput(req)
+    compileAndRun(fileName, examplesClasses, javaCode, roomId)
+      .then(out => {
+        console.log(`Request from room-${req.body.roomId} successful!`)
+        res
+          .status(200)
+          .json({ out })
+          .end()
+      })
+      .catch(err => {
+        handleHttpError(res, err)
+      })
+      .finally(() => {
+        endTimer(hrStart)
+      })
+  } catch (error) {
+    handleHttpError(res, error)
+  }
 })
 
 router.route('/racket').post((req, res) => {

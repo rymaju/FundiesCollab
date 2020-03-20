@@ -1,4 +1,4 @@
-const { mkdir, writeFile } = require('fs')
+const { mkdir, writeFile, rmdir } = require('fs')
 const path = require('path')
 const { execFile } = require('child_process')
 const createError = require('http-errors')
@@ -12,13 +12,20 @@ const executionTimeoutMs = 15000 // 15 second timeout
  * @param {string} examplesClasses a space delimited list of example classes to be used for the Tester library
  * @param {string} javaCode the java code to be compiled
  * @param {string} roomDir the room directory
- * @returns {Promise<string>} the output of running the java code including runtime and compile time errors, or nothing on timeout
+ * @returns {Promise<string|HttpError>} the output of running the java code including runtime and compile time errors, or nothing on timeout
  */
 function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
   return new Promise(function (resolve, reject) {
     mkdir(roomDir, err => {
       if (err && err.code !== 'EEXIST') {
-        return reject(createError(500, 'Error creating room directory'))
+        return reject(
+          createError(
+            400,
+            'Room is already being compiled. Wait for the current compilation to finish before compiling again.'
+          )
+        )
+      } else if (err) {
+        return reject(createError(500, 'Error writing room directory'))
       }
 
       writeFile(roomDir + '/' + fileName, javaCode, function (err) {
@@ -33,6 +40,8 @@ function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
           [...dockerArguments(roomDir), command],
           { timeout: executionTimeoutMs },
           (error, stdout, stderr) => {
+            deleteRoom(roomDir)
+
             if (error) {
               console.log(error)
               if (error.killed) {
@@ -73,6 +82,23 @@ function dockerArguments (roomDir) {
     '/bin/bash',
     '-c'
   ]
+}
+
+/**
+ * removes the directory associated with the given room ID
+ * @param {string} roomId
+ */
+function deleteRoom (roomDir) {
+  // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
+  // because whoever uses the dir last will eventually remove it
+
+  rmdir(roomDir, { recursive: true }, err => {
+    if (err) {
+      console.error(err)
+    } else {
+      console.log(`removed ${roomDir}`)
+    }
+  })
 }
 
 module.exports = compileAndRun
