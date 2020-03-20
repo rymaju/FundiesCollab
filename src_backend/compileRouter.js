@@ -33,28 +33,34 @@ function handleHttpError (res, httpError) {
     })
     .end()
 }
+function handleSuccessfulCompile (res, output, roomId) {
+  console.log(`Request from room-${roomId} successful!`)
 
-router.route('/java').post((req, res) => {
+  res
+    .status(200)
+    .json({ output })
+    .end()
+}
+
+router.route('/java').post(async (req, res) => {
   const hrStart = process.hrtime()
 
   try {
-    const { fileName, examplesClasses, javaCode, roomId } = validateInput(req)
-    compileAndRun(fileName, examplesClasses, javaCode, roomId)
-      .then(out => {
-        console.log(`Request from room-${req.body.roomId} successful!`)
-        res
-          .status(200)
-          .json({ out })
-          .end()
-      })
-      .catch(err => {
-        handleHttpError(res, err)
-      })
-      .finally(() => {
-        endTimer(hrStart)
-      })
+    const { fileName, examplesClasses, javaCode, roomId } = await validateInput(
+      req
+    )
+    const output = await compileAndRun(
+      fileName,
+      examplesClasses,
+      javaCode,
+      roomId
+    )
+
+    handleSuccessfulCompile(res, output, roomId)
   } catch (error) {
     handleHttpError(res, error)
+  } finally {
+    endTimer(hrStart)
   }
 })
 

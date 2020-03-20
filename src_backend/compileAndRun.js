@@ -1,6 +1,24 @@
-const { mkdir, writeFile, rmdir } = require('fs')
-const path = require('path')
+//const { mkdir, writeFile, rmdir } = require('fs')
+//const { execFile } = require('child_process')
+const { promisify } = require('util')
+const mkdir = promisify(require('fs').mkdir)
+const writeFile = promisify(require('fs').writeFile)
+const rmdir = promisify(require('fs').rmdir)
 const { execFile } = require('child_process')
+
+const execFilePromise = async (file, args, options) => {
+  return new Promise((resolve, reject) => {
+    execFile(file, args, options, (error, stdout, stderr) => {
+      if (error) {
+        reject({ error, stdout, stderr })
+      } else {
+        resolve({ stdout, stderr })
+      }
+    })
+  })
+}
+
+const path = require('path')
 const createError = require('http-errors')
 
 const appRoot = path.dirname(require.main.filename)
@@ -12,53 +30,28 @@ const executionTimeoutMs = 15000 // 15 second timeout
  * @param {string} examplesClasses a space delimited list of example classes to be used for the Tester library
  * @param {string} javaCode the java code to be compiled
  * @param {string} roomDir the room directory
- * @returns {Promise<string|HttpError>} the output of running the java code including runtime and compile time errors, or nothing on timeout
+ * @returns {Promise<string | HttpError>} the output of running the java code including runtime and compile time errors, or nothing on timeout
  */
-function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
-  return new Promise(function (resolve, reject) {
-    mkdir(roomDir, err => {
-      if (err && err.code !== 'EEXIST') {
-        return reject(
-          createError(
-            400,
-            'Room is already being compiled. Wait for the current compilation to finish before compiling again.'
-          )
-        )
-      } else if (err) {
-        return reject(createError(500, 'Error writing room directory'))
-      }
+async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
+  await mkdir(roomDir).catch(handleMakeDirectoryError)
+  const filePath = roomDir + '/' + fileName
+  await writeFile(filePath, javaCode).catch(handleWriteFileError)
 
-      writeFile(roomDir + '/' + fileName, javaCode, function (err) {
-        if (err) {
-          return reject(createError(500, 'Error writing java file'))
-        }
+  const command = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
 
-        const command = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
-
-        execFile(
-          'docker',
-          [...dockerArguments(roomDir), command],
-          { timeout: executionTimeoutMs },
-          (error, stdout, stderr) => {
-            deleteRoom(roomDir)
-
-            if (error) {
-              console.log(error)
-              if (error.killed) {
-                // process was killed by timeout
-                return reject(createError(400, 'Java execution timed out'))
-              }
-
-              console.log('compilation error')
-              return resolve(stdout)
-            }
-            console.log('compiled without error')
-            return resolve(stdout)
-          }
-        )
-      })
-    })
-  })
+  try {
+    const { stdout, stderr } = await execFilePromise(
+      'docker',
+      [...dockerArguments(roomDir), command],
+      { timeout: executionTimeoutMs }
+    )
+    console.log('compiled and run successfully')
+    return stdout
+  } catch (err) {
+    return handleExecFileError(err)
+  } finally {
+    deleteRoom(roomDir)
+  }
 }
 
 /**
@@ -99,6 +92,31 @@ function deleteRoom (roomDir) {
       console.log(`removed ${roomDir}`)
     }
   })
+}
+
+function handleMakeDirectoryError (err) {
+  if (err && err.code !== 'EEXIST') {
+    throw createError(
+      400,
+      'Room is already being compiled. Wait for the current compilation to finish before compiling again.'
+    )
+  } else if (err) {
+    throw createError(500, 'Error writing room directory')
+  }
+}
+
+function handleWriteFileError (err) {
+  throw createError(500, 'Error writing java file')
+}
+
+function handleExecFileError (err) {
+  if (err.killed) {
+    // process was killed by timeout
+    throw createError(400, 'Java execution timed out')
+  } else {
+    console.log('compilation error')
+    return err.stdout
+  }
 }
 
 module.exports = compileAndRun
