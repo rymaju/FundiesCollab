@@ -114,7 +114,7 @@ function handleWriteFileError (err) {
 
 function handleExecFileError (err) {
   console.error(err)
-  if (err.killed) {
+  if (err.error.killed) {
     // process was killed by timeout
     throw createError(400, 'Java execution timed out')
   } else {
