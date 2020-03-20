@@ -50,7 +50,10 @@ router.route('/java').post((req, res) => {
           console.error(err)
           endTimer(hrStart)
 
-          rmdir('room-' + input.roomId, err => console.error(err))
+          // if another user is reading/writing to the file, then is should give an EBUSY error which is ok, because whoever uses the dir last will eventually remove it
+          rmdir('room-' + input.roomId, { recursive: true }, err =>
+            console.error(err)
+          )
 
           res
             .status(err.status)
