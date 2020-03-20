@@ -15,8 +15,10 @@ const histogram = pm2io.histogram({
  * @returns {void}
  */
 function endTimer (hrStart) {
-  const hsEnd = process.hrtime.bigint()
-  const timeMs = (hsEnd - hrStart) / 1000000
+  const hsEnd = process.hrtime(hrStart)
+  const secondsAsMs = hsEnd[0] * 1000
+  const nanoAsMs = hsEnd[1] / 1000000
+  const timeMs = secondsAsMs + nanoAsMs
   console.log(`${timeMs}ms`)
   histogram.update(timeMs)
 }
@@ -24,7 +26,7 @@ function endTimer (hrStart) {
 router.route('/java').post((req, res) => {
   console.log('new request')
 
-  const hrStart = process.hrtime.bigint()
+  const hrStart = process.hrtime()
   console.log(new Date())
 
   validateInput(req, res)
