@@ -24,10 +24,7 @@ function endTimer (hrStart) {
 }
 
 router.route('/java').post((req, res) => {
-  console.log('new request')
-
   const hrStart = process.hrtime()
-  console.log(new Date())
 
   validateInput(req, res)
     .then(input => {
@@ -40,8 +37,6 @@ router.route('/java').post((req, res) => {
         .then(out => {
           console.log(`Request from room-${input.roomId} took:`)
           endTimer(hrStart)
-
-          console.log(new Date())
 
           if (out === '') {
             res
