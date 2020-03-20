@@ -41,7 +41,6 @@ router.route('/java').post((req, res) => {
 
           console.log(new Date())
 
-          console.log(process.hrtime(hrStart))
           if (out === '') {
             res
               .status(400)
