@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const pm2io = require('@pm2/io')
+const { rmdir } = require('fs')
 
 const compileAndRun = require('./compileAndRun')
 const validateInput = require('./validateInput')
@@ -37,6 +38,9 @@ router.route('/java').post((req, res) => {
         .then(out => {
           console.log(`Request from room-${req.body.roomId} took:`)
           endTimer(hrStart)
+
+          rmdir('room-' + input.roomId, err => console.error(err))
+
           res
             .status(200)
             .json({ out })
@@ -45,6 +49,8 @@ router.route('/java').post((req, res) => {
         .catch(err => {
           console.error(err)
           endTimer(hrStart)
+
+          rmdir('room-' + input.roomId, err => console.error(err))
 
           res
             .status(err.status)
