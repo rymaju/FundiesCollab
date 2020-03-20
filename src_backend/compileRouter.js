@@ -24,6 +24,13 @@ function endTimer (hrStart) {
   histogram.update(timeMs)
 }
 
+function deleteRoom (roomId) {
+  // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
+  // because whoever uses the dir last will eventually remove it
+  const roomDir = 'room-' + roomId
+  rmdir(roomDir, { recursive: true }, err => console.error(err))
+}
+
 router.route('/java').post((req, res) => {
   const hrStart = process.hrtime()
 
@@ -39,7 +46,7 @@ router.route('/java').post((req, res) => {
           console.log(`Request from room-${req.body.roomId} took:`)
           endTimer(hrStart)
 
-          rmdir('room-' + input.roomId, err => console.error(err))
+          deleteRoom(input.roomId)
 
           res
             .status(200)
@@ -50,10 +57,7 @@ router.route('/java').post((req, res) => {
           console.error(err)
           endTimer(hrStart)
 
-          // if another user is reading/writing to the file, then is should give an EBUSY error which is ok, because whoever uses the dir last will eventually remove it
-          rmdir('room-' + input.roomId, { recursive: true }, err =>
-            console.error(err)
-          )
+          deleteRoom(input.roomId)
 
           res
             .status(err.status)
