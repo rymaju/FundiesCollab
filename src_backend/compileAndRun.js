@@ -45,6 +45,7 @@ async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
       [...dockerArguments(roomDir), command],
       { timeout: executionTimeoutMs }
     )
+    console.log(stdout, stderr)
     console.log('compiled and run successfully')
     return stdout
   } catch (err) {
