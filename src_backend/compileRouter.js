@@ -34,14 +34,25 @@ router.route('/java').post((req, res) => {
         input.javaCode,
         'room-' + input.roomId
       )
-    })
-    .then(out => {
-      console.log(`Request from room-${req.body.roomId} took:`)
-      endTimer(hrStart)
-      res
-        .status(200)
-        .json({ out })
-        .end()
+        .then(out => {
+          console.log(`Request from room-${req.body.roomId} took:`)
+          endTimer(hrStart)
+          res
+            .status(200)
+            .json({ out })
+            .end()
+        })
+        .catch(err => {
+          console.error(err)
+          endTimer(hrStart)
+
+          res
+            .status(err.status)
+            .json({
+              err: err.status === 500 ? 'Internal Server Error' : err.message
+            })
+            .end()
+        })
     })
     .catch(err => {
       console.error(err)
