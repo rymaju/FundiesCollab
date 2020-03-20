@@ -99,7 +99,7 @@ function deleteRoom (roomDir) {
 
 function handleMakeDirectoryError (err) {
   console.error(err)
-  if (err && err.code !== 'EEXIST') {
+  if (err.code === 'EEXIST') {
     throw createError(
       400,
       'Room is already being compiled. Wait for the current compilation to finish before compiling again.'
