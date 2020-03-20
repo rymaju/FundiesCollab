@@ -24,12 +24,17 @@ function endTimer (hrStart) {
   histogram.update(timeMs)
 }
 
-function deleteRoom (roomId) {
+async function deleteRoom (roomId) {
   // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
   // because whoever uses the dir last will eventually remove it
   const roomDir = 'room-' + roomId
+
   rmdir(roomDir, { recursive: true }, err => {
-    console.error(err)
+    if (err) {
+      console.error(err)
+    } else {
+      console.log(`removed ${roomDir}`)
+    }
   })
 }
 
