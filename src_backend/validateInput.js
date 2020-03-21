@@ -1,40 +1,9 @@
-const roomData = require('./roomData')
 const createError = require('http-errors')
-const ensureString = require('type/string/ensure')
-const ensureArray = require('type/array/ensure')
 
-const fileNameRegex = /^[A-z]+.java$/
-const examplesClassesRegex = /^[A-z]+(\s[A-z]+)*$/
-const roomIdRegex = /^[a-z]+-[a-z]+-[0-9]+$/
-
-const fileNameMaxLen = 100
-const examplesClassesMaxLen = 500
-const javaCodeMaxLen = 25000
-
-function isInvalidFileName (fileName) {
-  return (
-    !ensureString(fileName) ||
-    !fileNameRegex.test(fileName) ||
-    fileName.length >= fileNameMaxLen
-  )
-}
-
-function isInvalidExamplesClasses (examplesClasses) {
-  const examplesString = examplesClasses.join(' ')
-  return (
-    !ensureArray(examplesClasses) ||
-    !examplesClassesRegex.test(examplesString) ||
-    examplesString.length >= examplesClassesMaxLen
-  )
-}
-
-function isInvalidJavaCode (javaCode) {
-  return !ensureString(javaCode) || javaCode.length >= javaCodeMaxLen
-}
-
-function isInvalidRoomId (roomId) {
-  return !ensureString(roomId) || !roomIdRegex.test(roomId)
-}
+const isInvalidFileName = require('./validation/isInvalidFileName')
+const isInvalidExamplesClasses = require('./validation/isInvalidExamplesClasses')
+const isInvalidJavaCode = require('./validation/isInvalidJavaCode')
+const isInvalidRoomId = require('./validation/isInvalidRoomId')
 
 /**
  * Validates the request body parameters and returns the validated body, or on rejection returns an http-error
@@ -50,18 +19,15 @@ function validateInput (req) {
   if (isInvalidFileName(fileName)) {
     throw createError(
       400,
-      `Invalid file name: "${fileName}". Must be a valid .java file name and be less than ${fileNameMaxLen} characters.`
+      `Invalid file name: "${fileName}". Must be a valid .java file name and must not be too long.`
     )
   } else if (isInvalidExamplesClasses(examplesClasses)) {
     throw createError(
       400,
-      `Invalid examples classes: ${examplesClasses} must be an array of valid Java class names, whose length when joined by spaces is less than ${examplesClassesMaxLen} chars`
+      `Invalid examples classes: ${examplesClasses} must be an array of valid Java class names and must not be too long.`
     )
   } else if (isInvalidJavaCode(javaCode)) {
-    throw createError(
-      400,
-      `Invalid java code. Submited code must be less than ${javaCodeMaxLen} characters`
-    )
+    throw createError(400, `Invalid java code. Submitted code was too long.`)
   } else if (isInvalidRoomId(roomId)) {
     throw createError(
       400,
