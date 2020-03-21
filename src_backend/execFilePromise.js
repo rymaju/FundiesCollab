@@ -1,6 +1,12 @@
 const { execFile } = require('child_process')
 
+/** Represents an error from execFile, including fields for the ExecException, stdout, and stderr*/
 class ExecFileError extends Error {
+  /**
+   * @param {ExecException} error
+   * @param {Buffer} stdout 
+   * @param {Buffer} stderr
+   */
   constructor (error, stdout, stderr) {
     super('Error occured when performing execFile()')
     this.error = error
