@@ -1,19 +1,27 @@
 const router = require('express').Router()
 const pm2io = require('@pm2/io')
-const { rmdir } = require('fs')
 
 const compileAndRun = require('./compileAndRun')
 const validateInput = require('./validateInput')
 
 const histogram = pm2io.histogram({
-  name: 'java latency',
+  name: 'Mean Java Latency',
   measurement: 'mean'
 })
 
 /**
+ * Represents a error for HTTP responses
+ * @typedef {Object} HttpError
+ * @property {boolean} expose  - an be used to signal if message should be sent to the client, defaulting to false when status >= 500
+ * @property {Object} headers - can be an object of header names to values to be sent to the client, defaulting to undefined. When defined, the key names should all be lower-cased
+ * @property {string} message - the traditional error message, which should be kept short and all single line
+ * @property {number} status - the status code of the error, mirroring statusCode for general compatibility
+ * @property {number} statusCode - the status code of the error, defaulting to 500
+ */
+
+/**
  * ends the timer and adds the value to the histogram
  * @param {[number, number]} hrStart the start of the timer given by process.hrtime()
- * @returns {void}
  */
 function endTimer (hrStart) {
   const hsEnd = process.hrtime(hrStart)
@@ -25,70 +33,47 @@ function endTimer (hrStart) {
 }
 
 /**
- * asyncronously removes the directory associated with the given room ID
- * @param {string} roomId
+ * handles the response to an http error
+ * @param {Response} res the response object
+ * @param {HttpError} httpError the http error
  */
-async function deleteRoom (roomId) {
-  // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
-  // because whoever uses the dir last will eventually remove it
-  const roomDir = 'room-' + roomId
+function handleHttpError (res, httpError) {
+  console.error(httpError)
+  res
+    .status(httpError.status)
+    .json({
+      err: httpError.expose ? httpError.message : 'Internal Server Error'
+    })
+    .end()
+}
+function handleSuccessfulCompile (res, output, roomId) {
+  console.log(`Request from room-${roomId} successful!`)
 
-  rmdir(roomDir, { recursive: true }, err => {
-    if (err) {
-      console.error(err)
-    } else {
-      console.log(`removed ${roomDir}`)
-    }
-  })
+  res
+    .status(200)
+    .json({ out: output })
+    .end()
 }
 
-router.route('/java').post((req, res) => {
+router.route('/java').post(async (req, res) => {
   const hrStart = process.hrtime()
 
-  validateInput(req, res)
-    .then(input => {
-      compileAndRun(
-        input.fileName,
-        input.examplesClasses,
-        input.javaCode,
-        'room-' + input.roomId
-      )
-        .then(out => {
-          console.log(`Request from room-${req.body.roomId} took:`)
-          endTimer(hrStart)
-
-          deleteRoom(input.roomId)
-
-          res
-            .status(200)
-            .json({ out })
-            .end()
-        })
-        .catch(err => {
-          console.error(err)
-          endTimer(hrStart)
-
-          deleteRoom(input.roomId)
-
-          res
-            .status(err.status)
-            .json({
-              err: err.status === 500 ? 'Internal Server Error' : err.message
-            })
-            .end()
-        })
-    })
-    .catch(err => {
-      console.error(err)
-      endTimer(hrStart)
-
-      res
-        .status(err.status)
-        .json({
-          err: err.status === 500 ? 'Internal Server Error' : err.message
-        })
-        .end()
-    })
+  try {
+    const { fileName, examplesClasses, javaCode, roomId } = await validateInput(
+      req
+    )
+    const output = await compileAndRun(
+      fileName,
+      examplesClasses,
+      javaCode,
+      roomId
+    )
+    handleSuccessfulCompile(res, output, roomId)
+  } catch (error) {
+    handleHttpError(res, error)
+  } finally {
+    endTimer(hrStart)
+  }
 })
 
 router.route('/racket').post((req, res) => {
