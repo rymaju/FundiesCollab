@@ -5,14 +5,23 @@ const compileAndRun = require('./compileAndRun')
 const validateInput = require('./validateInput')
 
 const histogram = pm2io.histogram({
-  name: 'java latency',
+  name: 'Mean Java Latency',
   measurement: 'mean'
 })
 
 /**
+ * Represents a error for HTTP responses
+ * @typedef {Object} HttpError
+ * @property {boolean} expose  - an be used to signal if message should be sent to the client, defaulting to false when status >= 500
+ * @property {Object} headers - can be an object of header names to values to be sent to the client, defaulting to undefined. When defined, the key names should all be lower-cased
+ * @property {string} message - the traditional error message, which should be kept short and all single line
+ * @property {number} status - the status code of the error, mirroring statusCode for general compatibility
+ * @property {number} statusCode - the status code of the error, defaulting to 500
+ */
+
+/**
  * ends the timer and adds the value to the histogram
  * @param {[number, number]} hrStart the start of the timer given by process.hrtime()
- * @returns {void}
  */
 function endTimer (hrStart) {
   const hsEnd = process.hrtime(hrStart)
@@ -23,13 +32,17 @@ function endTimer (hrStart) {
   histogram.update(timeMs)
 }
 
+/**
+ * handles the response to an http error
+ * @param {Response} res the response object
+ * @param {HttpError} httpError the http error
+ */
 function handleHttpError (res, httpError) {
   console.error(httpError)
   res
     .status(httpError.status)
     .json({
-      err:
-        httpError.status === 500 ? 'Internal Server Error' : httpError.message
+      err: httpError.expose ? httpError.message : 'Internal Server Error'
     })
     .end()
 }

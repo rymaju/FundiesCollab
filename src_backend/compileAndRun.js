@@ -1,22 +1,8 @@
-//const { mkdir, writeFile, rmdir } = require('fs')
-//const { execFile } = require('child_process')
 const { promisify } = require('util')
 const mkdir = promisify(require('fs').mkdir)
 const writeFile = promisify(require('fs').writeFile)
 const rmdir = promisify(require('fs').rmdir)
-const { execFile } = require('child_process')
-
-const execFilePromise = async (file, args, options) => {
-  return new Promise((resolve, reject) => {
-    execFile(file, args, options, (error, stdout, stderr) => {
-      if (error) {
-        reject({ error, stdout, stderr })
-      } else {
-        resolve({ stdout, stderr })
-      }
-    })
-  })
-}
+const execFile = require('./execFilePromise')
 
 const path = require('path')
 const createError = require('http-errors')
@@ -37,18 +23,18 @@ async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
   const filePath = roomDir + '/' + fileName
   await writeFile(filePath, javaCode).catch(handleWriteFileError)
 
-  const command = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName} && java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
+  const compileCommand = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName}`
+  const runCommand = `java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
+
+  const command = `${compileCommand} && ${runCommand}`
 
   try {
-    const { stdout, stderr } = await execFilePromise(
+    const { stdout, stderr } = await execFile(
       'docker',
       [...dockerArguments(roomDir), command],
       { timeout: executionTimeoutMs }
     )
-    console.log('stdout:' + stdout)
-    console.log('stderr:' + stderr)
-
-    console.log('compiled and run successfully')
+    console.log('file was compiled and run successfully')
     return stdout
   } catch (err) {
     return handleExecFileError(err)
@@ -96,7 +82,10 @@ function deleteRoom (roomDir) {
     }
   })
 }
-
+/**
+ * throws the correct HttpError when an error is thrown creating a directory
+ * @param {Error} err
+ */
 function handleMakeDirectoryError (err) {
   console.error(err)
   if (err.code === 'EEXIST') {
@@ -109,10 +98,21 @@ function handleMakeDirectoryError (err) {
   }
 }
 
+/**
+ * throws the correct HttpError when an error is thrown writing to file
+ * @param {Error} err
+ */
 function handleWriteFileError (err) {
   console.error(err)
   throw createError(500, 'Error writing java file')
 }
+
+/**
+ * throws the correct HttpError when an error is thrown running the docker container that runs and compiles the java code
+ * or returns the output if it was just a compilation error
+ * @param {Error} err
+ * @returns {string} compilation error output
+ */
 function handleExecFileError (err) {
   console.error(err)
   if (err.error.killed) {

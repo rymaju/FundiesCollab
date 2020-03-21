@@ -1,6 +1,6 @@
 const Redis = require('ioredis')
 
-// Represents the persistent dictionary of room ids to their code
+/**  Represents the persistent cache of room ids to their code */
 class RoomData {
   /**
    * Represents the persistent dictionary of room ids to their code
@@ -17,14 +17,14 @@ class RoomData {
   /**
    * Gets the code at the given room id and resets expiration
    * @param {string} roomId the room id
-   * @returns {Promise<string|null|Error>} a promise resolving in the code at the given room
+   * @returns {(Promise<string>)|(Promise<undefined>)} a promise resolving in the code at the given room
    */
   async get (roomId) {
     try {
       const code = await this.redis.get(roomId)
 
       if (code === null) {
-        return null
+        return undefined
       } else {
         this.redis.expire(roomId, this.lifespan)
         return code
@@ -38,7 +38,7 @@ class RoomData {
    * Sets the code at the given room id to the given code and resets expiration
    * @param {string} roomId the room id
    * @param {string} code the new code
-   * @returns {Promise<void|Error>} a promise resolving in the 'OK' response when the operation completes
+   * @returns {Promise<void>} a promise resolving in the 'OK' response when the operation completes
    * */
   async set (roomId, code) {
     try {
