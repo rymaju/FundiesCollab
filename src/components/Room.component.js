@@ -44,7 +44,7 @@ class Room extends Component {
       fileName: 'Foo.java',
       examplesClasses: ['ExamplesFoo'],
       javaCode: exampleCode,
-      output: `Press "Compile" or hit Ctrl+R to run your code!`,
+      output: 'Press "Compile" or hit Ctrl+R to run your code!',
       disableButton: false,
       roomId: '',
       keyPressState: false,
@@ -72,9 +72,11 @@ class Room extends Component {
   handleFileChange (event) {
     this.setState({ fileName: event.target.value })
   }
+
   handleExamplesChange (event) {
     this.setState({ examplesClasses: event.target.value.split(' ') })
   }
+
   handleCodeChange (editor, data, value) {
     this.setState({ javaCode: value })
 
@@ -98,6 +100,7 @@ class Room extends Component {
       this.setState({ keyPressState: true })
     }
   }
+
   handleKeyUp (e) {
     if (e.keyCode === 17 || e.keyCode === 91) {
       this.setState({ keyPressState: false })
@@ -140,7 +143,7 @@ class Room extends Component {
           })
         } else if (error.response.status === 507) {
           this.setState({
-            output: `Uh oh, it looks like our servers are at max capacity! Your work cannot be compiled or saved. Email me at ryan.matthew.jung@gmail.com to let me know there's a problem.In the meantime, you can download your code and work offline.`,
+            output: 'Uh oh, it looks like our servers are at max capacity! Your work cannot be compiled or saved. Email me at ryan.matthew.jung@gmail.com to let me know there\'s a problem.In the meantime, you can download your code and work offline.',
             disableButton: false
           })
         } else if (error.response.data.err === 'Java execution timed out') {
@@ -151,7 +154,7 @@ class Room extends Component {
           })
         } else if (error.response.status === 500) {
           this.setState({
-            output: `Yikes, something went wrong with our servers. Sorry! Email me at ryan.matthew.jung@gmail.com to let me know there's a problem. In the meantime, you can download your code and work offline.`,
+            output: 'Yikes, something went wrong with our servers. Sorry! Email me at ryan.matthew.jung@gmail.com to let me know there\'s a problem. In the meantime, you can download your code and work offline.',
             disableButton: false
           })
         } else {
@@ -307,7 +310,7 @@ class Room extends Component {
                   }}
                 />
               </Col>
-              <Col md='5' className={`pl-2`}>
+              <Col md='5' className='pl-2'>
                 <div className='d-flex flex-row mt-3 mb-3'>
                   <InputGroup size='sm'>
                     <Input

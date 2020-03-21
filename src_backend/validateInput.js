@@ -27,7 +27,7 @@ function validateInput (req) {
       `Invalid examples classes: ${examplesClasses} must be an array of valid Java class names and must not be too long.`
     )
   } else if (isInvalidJavaCode(javaCode)) {
-    throw createError(400, `Invalid java code. Submitted code was too long.`)
+    throw createError(400, 'Invalid java code. Submitted code was too long.')
   } else if (isInvalidRoomId(roomId)) {
     throw createError(
       400,

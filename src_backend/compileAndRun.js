@@ -29,7 +29,7 @@ async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
   const command = `${compileCommand} && ${runCommand}`
 
   try {
-    const { stdout, stderr } = await execFile(
+    const { stdout } = await execFile(
       'docker',
       [...dockerArguments(roomDir), command],
       { timeout: executionTimeoutMs }
