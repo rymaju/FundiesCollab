@@ -1,5 +1,14 @@
 const { execFile } = require('child_process')
 
+class ExecFileError extends Error {
+  constructor (error, stdout, stderr) {
+    super('Error occured when performing execFile()')
+    this.error = error
+    this.stdout = stdout
+    this.stderr = stderr
+  }
+}
+
 /**
  * Compiles and runs the given java file through its example classes, or on rejection returns an http-error
  * @param {string} fileName the full file name of the java file
@@ -12,7 +21,7 @@ async function execFilePromise (file, args, options) {
   return new Promise((resolve, reject) => {
     execFile(file, args, options, (error, stdout, stderr) => {
       if (error) {
-        reject({ error, stdout, stderr })
+        reject(new ExecFileError(error, stdout, stderr))
       } else {
         resolve({ stdout, stderr })
       }

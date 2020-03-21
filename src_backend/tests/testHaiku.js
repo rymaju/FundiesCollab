@@ -6,7 +6,7 @@ function generateRoomId () {
 }
 
 let count = 0
-let pastIds = {}
+const pastIds = {}
 let haiku = generateRoomId()
 while (pastIds[haiku] === undefined) {
   pastIds[haiku] = true

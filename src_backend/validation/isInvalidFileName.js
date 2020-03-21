@@ -7,7 +7,7 @@ const fileNameMaxLen = 100
  * @param {string} fileName
  * @returns {boolean}
  */
-function isInvalidFileName(fileName) {
+function isInvalidFileName (fileName) {
   return (
     !ensureString(fileName) ||
     !fileNameRegex.test(fileName) ||

@@ -18,8 +18,8 @@ class Home extends Component {
               <h1 className='display-3'>FundiesCollab</h1>{' '}
               <img
                 className='ml-3'
-                height={`90px`}
-                src={'/check-plus.png'}
+                height='90px'
+                src='/check-plus.png'
                 alt=''
               />
             </div>
