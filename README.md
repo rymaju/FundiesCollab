@@ -133,9 +133,9 @@ Something terribly terribly wrong has occurred. Shoot me an email so I can fix i
 
 ### Remote Code Execution
 
-An app of this nature has to be especially sensitive to security concerns. Executing whatever arbitrary code the user uploads is as dangerous as it gets, so steps have been taken to eliminate the possibly of RCE (Remote Code Execution).
+An app of this nature has to be especially sensitive to security concerns. Executing whatever arbitrary code the user uploads is as dangerous as it gets, so steps have been taken to eliminate the possibility of RCE (Remote Code Execution).
 
-When users `POST` their code to the server as a request body, the server will create a directory for that room and write the given code to a file named by the user. The commands for these actions (`fs.mkdir` and `fs.writeFile`) are immune to command injection, although they should be sanitized to prevent unexpected behavior. For example, ensuring that `fs.mkdir` is only called on a string with no spaces.
+When users `POST` their code to the server as a string in the request body, the server will create a directory for that room and write the given code to a file named by the user. The commands for these actions (`fs.mkdir` and `fs.writeFile`) are immune to command injection, although they should be sanitized to prevent unexpected behavior. For example, ensuring that `fs.mkdir` is only called on a string with no spaces.
 
 A docker container is then spun up which includes access to the library jar files and the room directory. This effectively protects the rest of the system from whatever malicious code may be executed in the java file. If the user did attempt to run commands from inside the container, the worst they could do is crash the container. The other resources available from within the docker container should be read only, and therefore immune to any modification.
 
