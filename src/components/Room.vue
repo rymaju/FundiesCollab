@@ -180,7 +180,7 @@ export default {
     }
   },
   beforeDestroy() {
-    socket.emit("leave room", { room: this.state.roomId });
+    socket.emit("leave room", { room: this.room });
   },
   mounted() {
     console.log(window.location.pathname.split("/")[2]);
