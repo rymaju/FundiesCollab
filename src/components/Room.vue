@@ -138,6 +138,7 @@ export default {
       return cleanOutput;
     },
     compile() {
+      socket.emit("send compile");
       this.compiling = true;
       this.output = "Running code...";
       axios
@@ -176,6 +177,7 @@ export default {
         })
         .finally(() => {
           this.compiling = false;
+          socket.emit("send output", { out: this.output });
         });
     }
   },
@@ -191,6 +193,14 @@ export default {
 
     socket.on("sync code", payload => {
       this.code = payload.newCode;
+    });
+    socket.on("sync compile", () => {
+      this.compiling = true;
+      this.output = "Running code...";
+    });
+    socket.on("sync output", payload => {
+      this.output = payload.out;
+      this.compiling = false;
     });
   },
 
