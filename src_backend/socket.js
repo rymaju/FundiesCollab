@@ -1,46 +1,115 @@
 const socketIO = require('socket.io')
 
-function socketSetup (server, roomData) {
+const pm2io = require('@pm2/io')
+const roomData = require('./roomData')
+const isInvalidJavaCode = require('./validation/isInvalidJavaCode')
+const isInvalidRoomId = require('./validation/isInvalidRoomId')
+
+const counter = pm2io.counter({
+  name: 'Active Socket Connections'
+})
+
+/**
+ * sets up the socket connections for the http server
+ * @param {Server} server server connection
+ */
+function socketSetup (server) {
   const io = socketIO(server)
 
   io.on('connection', socket => {
-    //console.log('a user connected')
+    counter.inc()
 
-    socket.on('disconnect', () => {
-      //console.log('user disconnected')
-    })
+    socket.on('disconnect', () => counter.dec())
 
-    socket.on('join room', function (data) {
-      socket.join(data.room)
-      if (roomData[data.room]) {
-        //console.log('sending')
+    socket.on('join room', data => joinRoomHandler(io, socket, data.room))
 
-        io.to(`${socket.id}`).emit('sync code', {
-          newCode: roomData[data.room].code
-        })
+    socket.on('leave room', data => socket.leave(data.room))
 
-        roomData[data.room] = {
-          code: roomData[data.room].code,
-          lastActiveDateTime: new Date()
-        }
-      }
-    })
+    socket.on('send code', data =>
+      broadcastCodeHandler(socket, data.room, data.newCode)
+    )
 
-    socket.on('leave room', data => {
-      socket.leave(data.room)
-    })
+    socket.on('send compile', data =>
+      broadcastCompileHandler(socket, data.room)
+    )
 
-    socket.on('send code', function (data) {
-      roomData[data.room] = {
-        code: data.newCode,
-        lastActiveDateTime: new Date()
-      }
-
-      socket.broadcast
-        .to(data.room)
-        .emit('sync code', { newCode: data.newCode })
-    })
+    socket.on('send output', data =>
+      broadcastOutputHandler(socket, data.room, data.out)
+    )
   })
+}
+
+/**
+ * joins the room with the given room id, and if there already exists saved code for that room, then send back that code
+ * @param {SocketIO.Server} io socket server connection
+ * @param {SocketIO.Socket} socket socket server connection
+ * @param {string} roomId the roomId
+ */
+async function joinRoomHandler (io, socket, roomId) {
+  if (isInvalidRoomId(roomId)) {
+    console.log(`attempted join of invalid room ${roomId}`)
+    socket.disconnect(true)
+  } else {
+    socket.join(roomId)
+    const newCode = await roomData.get(roomId).catch(err => console.error(err))
+    if (newCode !== undefined) {
+      io.to(`${socket.id}`).emit('sync code', { newCode })
+    }
+  }
+}
+
+/**
+ * updates the code at roomId to the new code, and broadcasts this change to all other users in the room
+ * @param {SocketIO.Socket} socket socket server connection
+ * @param {string} roomId the roomId
+ * @param {string} newCode the new code
+ */
+function broadcastCodeHandler (socket, roomId, newCode) {
+  if (isInvalidRoomId(roomId) || isInvalidJavaCode(newCode)) {
+    console.error(
+      `attempted broadcast of invalid room or code: 
+      ${roomId} 
+      ${newCode}`
+    )
+    socket.disconnect(true)
+  } else {
+    roomData.set(roomId, newCode).catch(err => console.error(err))
+    socket.broadcast.to(roomId).emit('sync code', { newCode })
+  }
+}
+
+/**
+ * @param {SocketIO.Socket} socket socket server connection
+ * @param {string} roomId the roomId
+ */
+function broadcastCompileHandler (socket, roomId) {
+  if (isInvalidRoomId(roomId)) {
+    console.error(
+      `attempted broadcast of invalid room: 
+      ${roomId}`
+    )
+    socket.disconnect(true)
+  } else {
+    socket.broadcast.to(roomId).emit('sync compile')
+  }
+}
+
+/**
+ * updates the code at roomId to the new code, and broadcasts this change to all other users in the room
+ * @param {SocketIO.Socket} socket socket server connection
+ * @param {string} roomId the roomId
+ * @param {string} newCode the new code
+ */
+function broadcastOutputHandler (socket, roomId, out) {
+  if (isInvalidRoomId(roomId)) {
+    console.error(
+      `attempted broadcast of invalid room:
+      ${roomId}`
+    )
+    socket.disconnect(true)
+  } else {
+    socket.broadcast.to(roomId).emit('sync output', { out })
+  }
 }
 
 module.exports = socketSetup

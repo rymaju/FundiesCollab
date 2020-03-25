@@ -1,57 +1,127 @@
-const fs = require('fs')
+const { promisify } = require('util')
+const mkdir = promisify(require('fs').mkdir)
+const writeFile = promisify(require('fs').writeFile)
+const rmdir = promisify(require('fs').rmdir)
+const execFile = require('./execFilePromise')
 
-const { execFile, exec } = require('child_process')
+const path = require('path')
+const createError = require('http-errors')
 
-// compiles and runs the given java file with the correct examples classes given the name, list of examples, and code
-// EFFECT: creates a java file, runs and compiles it, returning the output
-// compileAndRun : String [List-of String] String -> [Promise String]
-function compileAndRun (fileName, examplesClasses, javaCode, roomId) {
-  return new Promise(function (resolve, reject) {
-    exec('mkdir ' + roomId, { timeout: 10000 }, (error, stdout, stderr) => {
-      fs.writeFile(roomId + '/' + fileName, javaCode, function (err) {
-        if (err) {
-          reject(err)
-        }
-        //console.log('The file was saved!')
+const appRoot = path.dirname(require.main.filename)
+const executionTimeoutMs = 15000 // 15 second timeout
 
-        execFile(
-          'javac',
-          [
-            '-cp',
-            '.:tester.jar:javalib.jar',
-            '-d',
-            './' + roomId,
-            './' + roomId + '/' + fileName
-          ],
-          { timeout: 10000 },
-          (error, stdout, stderr) => {
-            if (error) {
-              resolve(stderr)
-            }
+/**
+ * Compiles and runs the given java file through its example classes, or on rejection returns an http-error
+ * @param {string} fileName the full file name of the java file
+ * @param {string} examplesClasses a space delimited list of example classes to be used for the Tester library
+ * @param {string} javaCode the java code to be compiled
+ * @param {string} roomDir the room directory
+ * @returns {Promise<string | HttpError>} the output of running the java code including runtime and compile time errors, or nothing on timeout
+ */
+async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
+  await mkdir(roomDir).catch(handleMakeDirectoryError)
+  const filePath = roomDir + '/' + fileName
+  await writeFile(filePath, javaCode).catch(handleWriteFileError)
 
-            //console.log('Compilation complete')
+  const compileCommand = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName}`
+  const runCommand = `java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
 
-            execFile(
-              'java',
-              [
-                '-classpath',
-                './' + roomId + ':tester.jar:javalib.jar',
-                'tester.Main'
-              ].concat(examplesClasses),
-              { timeout: 10000 },
-              (error, stdout, stderr) => {
-                if (error) {
-                  resolve(stderr)
-                }
-                //console.log('run complete returning response...')
-                resolve(stdout)
-              }
-            )
-          }
-        )
-      })
-    })
+  const command = `${compileCommand} && ${runCommand}`
+
+  try {
+    const { stdout } = await execFile(
+      'docker',
+      [...dockerArguments(roomDir), command],
+      { timeout: executionTimeoutMs }
+    )
+    console.log('file was compiled and run successfully')
+    return stdout
+  } catch (err) {
+    return handleExecFileError(err)
+  } finally {
+    deleteRoom(roomDir)
+  }
+}
+
+/**
+ * Return arguments to use for running docker for a given roomDir
+ * @param roomDir the room directory for this run
+ * @returns {string[]} docker arguments
+ */
+function dockerArguments (roomDir) {
+  return [
+    'run',
+    '-t',
+    '--rm',
+    '--workdir=/app',
+    '--volume',
+    `${appRoot}/${roomDir}:/app/${roomDir}`,
+    '--volume',
+    `${appRoot}/tester.jar:/app/tester.jar:ro`,
+    '--volume',
+    `${appRoot}/javalib.jar:/app/javalib.jar:ro`,
+    'openjdk:11-jdk',
+    '/bin/bash',
+    '-c'
+  ]
+}
+
+/**
+ * removes the directory associated with the given room ID
+ * @param {string} roomId
+ */
+function deleteRoom (roomDir) {
+  // if another user is reading/writing to the file, then is should give an EBUSY error which is ok,
+  // because whoever uses the dir last will eventually remove it
+
+  rmdir(roomDir, { recursive: true }, err => {
+    if (err) {
+      console.error(err)
+    } else {
+      console.log(`removed ${roomDir}`)
+    }
   })
+}
+/**
+ * throws the correct HttpError when an error is thrown creating a directory
+ * @param {Error} err
+ */
+function handleMakeDirectoryError (err) {
+  console.error(err)
+  if (err.code === 'EEXIST') {
+    throw createError(
+      400,
+      'Room is already being compiled. Wait for the current compilation to finish before compiling again.'
+    )
+  } else if (err) {
+    throw createError(500, 'Error writing room directory')
+  }
+}
+
+/**
+ * throws the correct HttpError when an error is thrown writing to file
+ * @param {Error} err
+ */
+function handleWriteFileError (err) {
+  console.error(err)
+  throw createError(500, 'Error writing java file')
+}
+
+/**
+ * throws the correct HttpError when an error is thrown running the docker container that runs and compiles the java code
+ * or returns the output if it was just a compilation error
+ * @param {Error} err
+ * @returns {string} compilation error output
+ */
+function handleExecFileError (err) {
+  console.error(err)
+  if (err.error.killed) {
+    // process was killed by timeout
+    throw createError(400, 'Java execution timed out')
+  } else {
+    console.log('compilation error')
+    return err.stdout
+  }
 }
 
 module.exports = compileAndRun
