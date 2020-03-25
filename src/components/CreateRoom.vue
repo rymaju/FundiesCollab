@@ -1,7 +1,7 @@
 <template>
   <b-overlay :show="creatingRoom" rounded="lg" spinner-variant="primary">
     <b-container class="form-container">
-      <b-form class="create-room" v-on:submit.prevent="onSubmit" @submit="createRoom">
+      <b-form class="create-room" v-on:submit.prevent="createRoom">
         <h2>Create a room</h2>
 
         <b-form-group
