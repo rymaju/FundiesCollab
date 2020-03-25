@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
+    <link rel="stylesheet" href="./index.css" />
     <title>FundiesCollab</title>
     <meta
       name="description"
@@ -19,7 +20,17 @@
         enabled. Please enable it to continue.</strong
       >
     </noscript>
-    <div id="app"></div>
+    <div id="app" v-cloak>
+      <!--https://tobiasahlin.com/spinkit/-->
+      <div class="sk-chase">
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+      </div>
+    </div>
     <!-- built files will be auto injected -->
   </body>
 </html>
