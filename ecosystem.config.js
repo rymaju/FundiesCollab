@@ -2,6 +2,7 @@ module.exports = {
   name: 'server',
   script: './server.js',
   // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
+  exec_mode: 'fork',
   autorestart: true,
   watch: false,
   max_memory_restart: '500M',
