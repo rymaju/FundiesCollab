@@ -11,7 +11,7 @@
           description="Your room ID is a unique indentifier that will allow you to share your work just by sharing the link"
         >
           <b-form-input
-            @change="() => {
+            @change="function() {
               console.log(this.isUniqueRoom)
               this.isUniqueRoom = true
               console.log(this.isUniqueRoom)
@@ -40,7 +40,7 @@ export default {
   data() {
     return {
       creatingRoom: false,
-      isUniqueRoom: false,
+      isUniqueRoom: true,
       room: this.generateHaiku()
     };
   },
