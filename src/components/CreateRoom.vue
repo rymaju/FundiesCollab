@@ -9,7 +9,7 @@
         label-for="input-1"
         description="Your room ID is a unique indentifier that will allow you to share your work just by sharing the link"
       >
-        <b-form-input @change="isUniqueRoom = true" v-model="room" :state="validation()" />
+        <b-form-input @change="this.isUniqueRoom = true" v-model="room" :state="validation()" />
         <b-form-invalid-feedback :state="validation()">{{validationErrors}}</b-form-invalid-feedback>
         <b-form-valid-feedback :state="validation()">Looks good!</b-form-valid-feedback>
       </b-form-group>
@@ -63,10 +63,10 @@ export default {
             : "http://localhost:5000/api/room/" + this.room
         )
         .then(() => {
-          this.$router.push(`room/${this.room.trim()}`);
+          this.isUniqueRoom = false;
         })
         .catch(() => {
-          this.isUniqueRoom = false;
+          this.$router.push(`room/${this.room.trim()}`);
         });
     }
   }
