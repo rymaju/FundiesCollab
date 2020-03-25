@@ -212,7 +212,7 @@ export default {
       examplesClasses: "ExamplesFoo",
       compiling: false,
       darkMode: false,
-      output: `Press the green "Run" button to run and compile your code.`,
+      output: `Press the green "Run" button to run and compile your code.\n\nCode in this room is only saved for up to 7 days after the last edit, so remember to download your code when you're done!`,
       code: `import tester.Tester; 
 import javalib.worldimages.*; 
 import java.awt.Color; 
