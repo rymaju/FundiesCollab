@@ -1,22 +1,24 @@
 <template>
-  <b-container class="form-container">
-    <b-form class="create-room">
-      <h2>Create a room</h2>
+  <b-overlay :show="creatingRoom" rounded="lg" spinner-variant="primary">
+    <b-container class="form-container">
+      <b-form class="create-room">
+        <h2>Create a room</h2>
 
-      <b-form-group
-        id="input-group-1"
-        label="Room ID:"
-        label-for="input-1"
-        description="Your room ID is a unique indentifier that will allow you to share your work just by sharing the link"
-      >
-        <b-form-input @change="this.isUniqueRoom = true" v-model="room" :state="validation()" />
-        <b-form-invalid-feedback :state="validation()">{{validationErrors}}</b-form-invalid-feedback>
-        <b-form-valid-feedback :state="validation()">Looks good!</b-form-valid-feedback>
-      </b-form-group>
+        <b-form-group
+          id="input-group-1"
+          label="Room ID:"
+          label-for="input-1"
+          description="Your room ID is a unique indentifier that will allow you to share your work just by sharing the link"
+        >
+          <b-form-input @change="this.isUniqueRoom = true" v-model="room" :state="validation()" />
+          <b-form-invalid-feedback :state="validation()">{{validationErrors}}</b-form-invalid-feedback>
+          <b-form-valid-feedback :state="validation()">Looks good!</b-form-valid-feedback>
+        </b-form-group>
 
-      <b-button variant="success" @click="createRoom" :disabled="!validation()">Create Room</b-button>
-    </b-form>
-  </b-container>
+        <b-button variant="success" @click="createRoom" :disabled="!validation()">Create Room</b-button>
+      </b-form>
+    </b-container>
+  </b-overlay>
 </template>
 
 <script>
@@ -29,6 +31,7 @@ export default {
   components: {},
   data() {
     return {
+      creatingRoom: false,
       isUniqueRoom: true,
       room: this.generateHaiku()
     };
@@ -56,6 +59,7 @@ export default {
       return haikunator.haikunate();
     },
     createRoom() {
+      this.creatingRoom = true;
       axios
         .get(
           process.env.NODE_ENV === "production"
@@ -67,6 +71,9 @@ export default {
         })
         .catch(() => {
           this.$router.push(`room/${this.room.trim()}`);
+        })
+        .finally(() => {
+          this.creatingRoom = false;
         });
     }
   }

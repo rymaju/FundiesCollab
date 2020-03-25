@@ -6,8 +6,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VueRouter from 'vue-router'
 import VueClipboard from 'vue-clipboard2'
 
-
-import Room from './components/Room'
 import CreateRoom from './components/CreateRoom'
 import Home from './components/Home'
 import NotFound from './components/NotFound'
@@ -24,7 +22,7 @@ const router = new VueRouter({
   routes: [
     { path: '/', component: Home },
     { path: '/room', component: CreateRoom },
-    { path: '/room/:id', component: Room },
+    { path: '/room/:id', component: () => import('./components/Room') },
     { path: '*', component: NotFound }
   ]
 })
