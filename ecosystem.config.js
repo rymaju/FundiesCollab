@@ -1,12 +1,10 @@
-
 module.exports = {
   name: 'server',
   script: './server.js',
   // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
-  instances: 'max',
   autorestart: true,
   watch: false,
-  max_memory_restart: '1G',
+  max_memory_restart: '500MB',
   env: {
     NODE_ENV: 'production'
   },
@@ -14,6 +12,5 @@ module.exports = {
   out_file: 'out.log',
   log_file: 'combined.log',
   time: true,
-  exec_mode: 'cluster'
-
+  exec_mode: 'fork'
 }
