@@ -36,7 +36,7 @@ function validateInput (req) {
   } else {
     const validatedBody = {
       fileName,
-      examplesClasses,
+      examplesClasses: examplesClasses.join(' '),
       javaCode,
       roomId
     }
