@@ -9,7 +9,7 @@ router.route('/:id').get(async (req, res) => {
   if (containsRoom) {
     res.send(200).end()
   } else {
-    res.send(404).end()
+    res.send(400).end()
   }
 })
 

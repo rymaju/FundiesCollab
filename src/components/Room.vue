@@ -212,7 +212,7 @@ export default {
       examplesClasses: "ExamplesFoo",
       compiling: false,
       darkMode: false,
-      output: `Write your code in the editor above, then list out your examples classes (with spaces between), and press the green "Run" button to see the results down here!`,
+      output: `Press the green "Run" button to run and compile your code.`,
       code: `import tester.Tester; 
 import javalib.worldimages.*; 
 import java.awt.Color; 
