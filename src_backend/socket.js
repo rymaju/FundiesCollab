@@ -28,6 +28,14 @@ function socketSetup (server) {
     socket.on('send code', data =>
       broadcastCodeHandler(socket, data.room, data.newCode)
     )
+
+    socket.on('send compile', data =>
+      broadcastCompileHandler(socket, data.room)
+    )
+
+    socket.on('send output', data =>
+      broadcastOutputHandler(socket, data.room, data.out)
+    )
   })
 }
 
@@ -67,6 +75,40 @@ function broadcastCodeHandler (socket, roomId, newCode) {
   } else {
     roomData.set(roomId, newCode).catch(err => console.error(err))
     socket.broadcast.to(roomId).emit('sync code', { newCode })
+  }
+}
+
+/**
+ * @param {SocketIO.Socket} socket socket server connection
+ * @param {string} roomId the roomId
+ */
+function broadcastCompileHandler (socket, roomId) {
+  if (isInvalidRoomId(roomId)) {
+    console.error(
+      `attempted broadcast of invalid room: 
+      ${roomId}`
+    )
+    socket.disconnect(true)
+  } else {
+    socket.broadcast.to(roomId).emit('sync compile')
+  }
+}
+
+/**
+ * updates the code at roomId to the new code, and broadcasts this change to all other users in the room
+ * @param {SocketIO.Socket} socket socket server connection
+ * @param {string} roomId the roomId
+ * @param {string} newCode the new code
+ */
+function broadcastOutputHandler (socket, roomId, out) {
+  if (isInvalidRoomId(roomId)) {
+    console.error(
+      `attempted broadcast of invalid room:
+      ${roomId}`
+    )
+    socket.disconnect(true)
+  } else {
+    socket.broadcast.to(roomId).emit('sync output', { out })
   }
 }
 

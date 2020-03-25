@@ -6,9 +6,9 @@ This project is **not** meant to be a replacement for Eclipse for use in Fundies
 
 ## How It Works
 
-Built with ReactJS and Express, hosted on a DigitalOcean droplet. Uses Northeastern's Fundamentals of Computer Science 2 Java Tester and Image libraries.
+Built with Vue and Express, hosted on a DigitalOcean droplet. Uses Northeastern's Fundamentals of Computer Science 2 Java Tester and Image libraries.
 
-Code is shared in "rooms" that can be joined or shared by URL. Socket.io is used to create and connect these rooms. Changes to the code are broadcast to everyone in the room, and also stored in the backend, so you can leave and come back to the same code.
+Code is shared in "rooms" that can be joined or shared by URL. Socket.io is used to create and connect these rooms. Changes to the code are broadcast to everyone in the room, and also stored in the backend, so you can leave and come back to the same code. The code editor is Monaco Editor, the same powerful tool used by VSCode. As a consequence, the initial load of the website is quite large (~5mb), but users are expected to be running on relatively fast machines and connections.
 
 Code is sent as a `POST` request from the user's browser to the backend when they hit "Compile". The backend then writes the code to a file, compiles and runs it with the Tester and Image libraries (inside a docker container to prevent damage from arbitrary code execution), then returns stdout.
 
@@ -39,11 +39,11 @@ This offers the advantage of being able to see metrics by using the commands `pm
 
 ### Frontend
 
-If you just want to run and test the frontend, run `npm run react` which will start the frontend on `http://localhost:3000`. Currently as the API is public, you can also set `NODE_ENV='production'` to use the API live at `fundiescollab.com`.
+If you just want to run and test the frontend, run `npm run serve` which will start the frontend on `http://localhost:8081`.
 
 ## API
 
-The backend can be accessed at `fundiescollab.com/api/compile/`.
+The backend can be accessed at `fundiescollab.com/api/`.
 
 ### `POST fundiescollab.com/api/compile/java`
 
@@ -129,6 +129,20 @@ The API is rate limited to 20 requests every 10 minutes. If for some reason you 
 
 Something terribly terribly wrong has occurred. Shoot me an email so I can fix it.
 
+### `GET fundiescollab.com/api/room/:id`
+
+#### `200 OK`
+
+The room exists.
+
+### `400 Bad Request`
+
+The room does not exist
+
+#### `500 Internal Server Error`
+
+Something terribly terribly wrong has occurred. Shoot me an email so I can fix it.
+
 ## Security
 
 ### Remote Code Execution
@@ -143,7 +157,7 @@ A docker container is then spun up which includes access to the library jar file
 
 The threat of denial of service attacks is two-fold: crippling the site such that no users can actually use the site, and deleting all saved work on the site. Under no circumstances should a barrage of request crash the application (or worse, the VPS that runs the application).
 
-Conservative rate limiting is put in place to make sure that nobody can just spam the API. Users are allowed to make 20 requests over 10 minutes. On the client side React app, the compile button is disabled until a response is received from the server.
+Conservative rate limiting is put in place to make sure that nobody can just spam the API. Users are allowed to make 20 requests over 10 minutes. On the frontend, the compile button is disabled until a response is received from the server.
 
 Even with rate limiting, an attacker could still crash the application by sending enough requests to overflow the RAM capacity of Redis and our VPS, which would result in either Redis crashing and flushing, our VPS crashing, or both.
 
