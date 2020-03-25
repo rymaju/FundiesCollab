@@ -4,6 +4,7 @@ const path = require('path')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const compileRouter = require('./compileRouter')
+const roomRouter = require('./roomRouter')
 
 const appRoot = path.dirname(require.main.filename)
 
@@ -25,6 +26,7 @@ function init () {
   app.use('/api/', apiLimiter) // use the apiLimiter only on routes beginning with /api
   app.use(express.static(path.join(appRoot, '/dist'))) // host the static files built from React
   app.use('/api/compile', compileRouter) // mount the subrouter
+  app.use('/api/room', roomRouter) // mount the subrouter
 
   // If the route cannot be identified, send the index.html file and let react router route instead
 

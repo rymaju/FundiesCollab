@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import axios from "axios";
 import Haikunator from "haikunator";
 const haikunator = new Haikunator();
 
@@ -55,15 +56,18 @@ export default {
       return haikunator.haikunate();
     },
     createRoom() {
-      //first validate room
-      //then redirect
-      console.log("clicked");
-      console.log(`room/${this.room}`);
-
-      if (this.validation) {
-        //axios request to check if room is taken, if not then redirect, or else set isUniqueRoom to false
-        this.$router.push(`room/${this.room.trim()}`);
-      }
+      axios
+        .get(
+          process.env.NODE_ENV === "production"
+            ? "https://fundiescollab.com/api/room/" + this.room
+            : "http://localhost:5000/api/room/" + this.room
+        )
+        .then(() => {
+          this.$router.push(`room/${this.room.trim()}`);
+        })
+        .catch(() => {
+          this.isUniqueRoom = false;
+        });
     }
   }
 };

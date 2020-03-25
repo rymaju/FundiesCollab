@@ -144,7 +144,7 @@ export default {
         .post(
           process.env.NODE_ENV === "production"
             ? "https://fundiescollab.com/api/compile/java"
-            : "http://localhost:5000",
+            : "http://localhost:5000/api/compile/java",
           {
             fileName: "Test.java",
             examplesClasses: this.examplesClasses.split(" "),
