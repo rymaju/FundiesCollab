@@ -54,6 +54,7 @@ export default {
   methods: {
     validation() {
       this.isUniqueRoom = true;
+      console.log(this.isUniqueRoom);
       return this.validationErrors.length === 0;
     },
     generateHaiku() {
