@@ -4,7 +4,7 @@ module.exports = {
   // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
   autorestart: true,
   watch: false,
-  max_memory_restart: '500MB',
+  max_memory_restart: '500M',
   env: {
     NODE_ENV: 'production'
   },
