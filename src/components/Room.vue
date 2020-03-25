@@ -138,7 +138,7 @@ export default {
       return cleanOutput;
     },
     compile() {
-      socket.emit("send compile");
+      socket.emit("send compile", { room: this.room });
       this.compiling = true;
       this.output = "Running code...";
       axios
@@ -177,7 +177,7 @@ export default {
         })
         .finally(() => {
           this.compiling = false;
-          socket.emit("send output", { out: this.output });
+          socket.emit("send output", { room: this.room, out: this.output });
         });
     }
   },
