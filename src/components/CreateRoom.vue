@@ -69,8 +69,10 @@ export default {
         .then(() => {
           this.isUniqueRoom = false;
         })
-        .catch(() => {
-          this.$router.push(`room/${this.room.trim()}`);
+        .catch(err => {
+          if (err.response.status === 400) {
+            this.$router.push(`room/${this.room.trim()}`);
+          }
         })
         .finally(() => {
           this.creatingRoom = false;
