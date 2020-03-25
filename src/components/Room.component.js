@@ -23,6 +23,7 @@ import {
   InputGroup,
   InputGroupAddon
 } from 'reactstrap'
+import hexToRgba from 'hex-to-rgba'
 const fileDownload = require('js-file-download')
 
 require('./custom-codemirror.css')
@@ -40,6 +41,18 @@ class Room extends Component {
   constructor () {
     super()
 
+    // Use any hex color code here, these are the colors
+    // of other users' cursers
+    this.cursors = [
+        "#ef5350",
+        "#42A5F5",
+        "#81C784",
+        "#9575CD",
+        "#FF7043",
+        "#4DD0E1",
+        "#4DB6AC"
+    ]
+
     this.state = {
       fileName: 'Foo.java',
       examplesClasses: ['ExamplesFoo'],
@@ -49,11 +62,34 @@ class Room extends Component {
       roomId: '',
       keyPressState: false,
       theme: 'eclipse',
-      style: lightMode
+      style: lightMode,
+      cursors: {},
+      myColor: "red"
     }
+
+    window.addEventListener("beforeunload", function(evt) {
+      socket.emit('remove cursor', {
+        room: this.state.roomId,
+        color: this.state.myColor
+      })
+    
+      // Google Chrome requires returnValue to be set
+      evt.returnValue = '';
+    
+      return null;
+    }.bind(this));
 
     socket.on('sync code', payload => {
       this.setState({ javaCode: payload.newCode })
+    })
+    socket.on('remove cursor', payload => {
+      if (this.state.cursors[payload.color] !== undefined) {
+        this.state.cursors[payload.color].clear();
+        this.state.cursors[payload.color] = undefined;
+      }
+    })
+    socket.on('new client number', payload => {
+      this.setState({ myColor: this.cursors[payload.clientNum % this.cursors.length] })
     })
 
     this.handleFileChange = this.handleFileChange.bind(this)
@@ -64,9 +100,41 @@ class Room extends Component {
     this.handleKeyUp = this.handleKeyUp.bind(this)
     this.download = this.download.bind(this)
     this.componentDidMount = this.componentDidMount.bind(this)
+    this.handleCursorMove = this.handleCursorMove.bind(this)
 
     document.body.addEventListener('keydown', this.handleKeyDown)
     document.body.addEventListener('keyup', this.handleKeyUp)
+  }
+
+  handleCursorMove (cm, color, cursor) {
+    // cm: CodeMirror instance
+    // color: the color of the cursor to update
+    // cursor: The position of the cursor sent from another client ({line, ch} about CodeMirror)
+      
+    if (this.state.cursors[color] !== undefined) {
+      this.state.cursors[color].clear();
+    }
+        
+    // Generate DOM node (marker / design you want to display)
+    const cursorCoords = cm.cursorCoords(cursor);
+    const cursorElement = document.createElement('span');
+    cursorElement.className = "custom-cursor"
+    cursorElement.style.borderLeftStyle = 'solid';
+    cursorElement.style.borderLeftWidth = '2px';
+    cursorElement.style.borderLeftColor = color;
+    cursorElement.style.height = `${(cursorCoords.bottom - cursorCoords.top)}px`;
+    cursorElement.style.padding = 0;
+    cursorElement.style.zIndex = 0;
+    cursorElement.style.boxShadow = "0px 0px 10px 5px " + hexToRgba(color, 0.2);;
+
+    // Set the generated DOM node at the position of the cursor sent from another client
+    // setBookmark first argument: The position of the cursor sent from another client
+    // Second argument widget: Generated DOM node
+    var marker = cm.setBookmark(cursor, { widget: cursorElement });
+
+    var newCursors = Object.assign({}, this.state.cursors);
+    newCursors[color] = marker;
+    this.setState({ cursors: newCursors })
   }
 
   handleFileChange (event) {
@@ -292,6 +360,21 @@ class Room extends Component {
                 </div>
                 <CodeMirror
                   value={this.state.javaCode}
+                  onCursorActivity={(editor) => {
+                      var { line, ch } = editor.getCursor();
+
+                      socket.emit('send cursor', {
+                        room: this.state.roomId,
+                        color: this.state.myColor,
+                        cursor: { line, ch }
+                      })
+                  }}
+                  
+                  editorDidMount = {(editor) => {
+                    socket.on('cursor move', payload => {
+                      this.handleCursorMove(editor, payload.color, payload.cursor);
+                    })
+                  }}
                   onBeforeChange={this.handleCodeChange}
                   onChange={(editor, data, value) => {}}
                   options={{

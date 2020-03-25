@@ -11,3 +11,57 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@keyframes blink123 {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @-moz-keyframes blink123 {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @-webkit-keyframes blink123 {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @-ms-keyframes blink123 {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @-o-keyframes blink123 {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+.custom-cursor {
+    -webkit-animation: blink123 0.55s ease-out infinite alternate;
+    -moz-animation: blink123 0.55s ease-out infinite alternate;
+    -ms-animation: blink123 0.55s ease-out infinite alternate;
+    -o-animation: blink123 0.55s ease-out infinite alternate;
+    animation: blink123 0.55s ease-out infinite alternate;
+    opacity: 0;
+}
