@@ -11,6 +11,5 @@ module.exports = {
   error_file: 'err.log',
   out_file: 'out.log',
   log_file: 'combined.log',
-  time: true,
-  exec_mode: 'fork'
+  time: true
 }
