@@ -1,5 +1,5 @@
 const ensureString = require('type/string/ensure')
-const roomIdRegex = /^[a-z]+-[a-z]+-[0-9]+$/
+const roomIdRegex = /^[a-zA-Z0-9-_]+/
 
 /**
  * is the given room ID invalid?
