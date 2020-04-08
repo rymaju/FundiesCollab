@@ -49,23 +49,23 @@ The backend can be accessed at `fundiescollab.com/api/`.
 
 Request Body:
 
-```js
+```json
 {
-    fileName: STRING,
-    examplesClasses: [STRING],
-    javaCode: STRING,
-    roomId: STRING
+  "fileName": STRING,
+  "examplesClasses": [STRING],
+  "javaCode": STRING,
+  "roomId": STRING
 }
 ```
 
 Request Body Example:
 
-```js
+```json
 {
-    fileName: 'Foo.java',
-    examplesClasses: ['ExamplesFoo'],
-    javaCode: 'public class Foo { ... }',
-    roomId: 'crunchy-pineapple-0115'
+  "fileName": "Foo.java",
+  "examplesClasses": ["ExamplesFoo"],
+  "javaCode": "public class Foo { ... }",
+  "roomId": "crunchy-pineapple-0115"
 }
 ```
 
@@ -75,9 +75,9 @@ The API will respond `200 OK` on successful compilation and runs, runtime errors
 
 Response Body:
 
-```js
+```json
 {
-  out: STRING
+  "out": STRING
 }
 ```
 
@@ -85,17 +85,17 @@ Example Response Body:
 
 Code compiled and ran successfully with Tester Library
 
-```js
+```json
 {
-  out: 'Tester Library 3.0 ...'
+  "out": "Tester Library 3.0 ..."
 }
 ```
 
 Code did not compile
 
-```js
+```json
 {
-  out: '...Foo.java:1: error: package tester does not exist...'
+  "out": "...Foo.java:1: error: package tester does not exist..."
 }
 ```
 
@@ -137,7 +137,7 @@ Returns a json body describing whether the room exists or does not exist
 
 ```json
 {
-  exists: BOOLEAN
+  "exists": BOOLEAN
 }
 ```
 
