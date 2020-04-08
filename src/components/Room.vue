@@ -1,49 +1,70 @@
 <template>
-  <div id="room" style="height:100%">
+  <div id="room" class="side">
     <b-row no-gutters>
       <b-col>
         <b-container fluid id="header" class="icon-bar side">
-          <div style="width:220px">
+          <div>
             <b-spinner
               v-if="compiling"
               label="Loading..."
-              class="mt-3 ml-5"
-              style="min-width:32px; margin-right:58px;"
+              class="mt-3"
+              style="min-width:32px; margin-right: 32px;"
             ></b-spinner>
             <b-icon
               v-else
               @click="compile"
               icon="play-fill"
-              class="icon ml-5"
-              style="height:50px;width:50px; margin-top:7px; margin-right:40px; color:#28a745"
+              class="icon"
+              style="height:50px; min-width:50px; margin-top:7px; color:#28a745"
             />
           </div>
-          <b-input-group prepend="Example Classes" style="height:35px; margin-top: 14px" class>
-            <b-form-input v-model="examplesClasses"></b-form-input>
-          </b-input-group>
 
-          <b-input-group style="height:35px; width:900px; margin-top: 14px" class="ml-3 mr-5">
-            <b-form-input v-bind:value="url" v-bind:readonly="true"></b-form-input>
-            <b-input-group-append>
-              <b-button
-                variant="primary"
-                v-clipboard:copy="url"
-                v-clipboard:success="onCopy"
-              >{{copyText}}</b-button>
-            </b-input-group-append>
-          </b-input-group>
+          <b-icon
+            v-b-modal.modal-1
+            icon="gear-fill"
+            class="icon"
+            style="height:32px;width:32px; margin-top:15px"
+          />
+
+          <b-modal id="modal-1" title="Editor Settings" hide-footer>
+            <b-form-group
+              id="input-group-1"
+              label="Example Classes"
+              description="A space delimited list of example classes to compile"
+            >
+              <b-form-input v-model="examplesClasses" :state="validation()" spellcheck="false" />
+              <b-form-invalid-feedback
+                :state="validation()"
+              >Must be a space delimited string of classes</b-form-invalid-feedback>
+              <b-form-valid-feedback :state="validation()">Looks good!</b-form-valid-feedback>
+            </b-form-group>
+
+            <b-check v-model="darkMode" switch>
+              <label>Dark mode</label>
+            </b-check>
+          </b-modal>
+
+          <b-icon
+            icon="link45deg"
+            class="icon"
+            style="height:35px;width:35px; margin-top:15px"
+            @click="copyURL"
+            id="copy-icon"
+          />
+
+          <b-tooltip :show.sync="showCopyTooltip" target="copy-icon" placement="bottom">{{copyText}}</b-tooltip>
 
           <b-icon
             @click="download"
             icon="cloud-download"
-            class="mr-5 icon"
+            class="icon"
             style="height:35px;width:35px; margin-top:15px"
           />
 
           <b-icon
             @click="switchTheme"
             v-bind:icon="themeIcon"
-            class="mr-5 icon"
+            class="icon"
             style="height:40px;width:40px; margin-top:10px"
           />
         </b-container>
@@ -51,17 +72,20 @@
     </b-row>
 
     <b-row no-gutters style="max-width: 100vw; width: 100vw; max-height: calc(100vh - 70px);">
-      <b-col>
+      <b-col lg="7">
         <MonacoEditor
           class="editor"
           v-model="code"
           language="java"
           v-bind:theme="theme"
-          v-bind:options="{ scrollBeyondLastLine: false, wordWrap: 'on'}"
+          v-bind:options="{ 
+            scrollBeyondLastLine: false, 
+            wordWrap: 'on',
+            automaticLayout: true}"
           @change="codeChange"
         />
       </b-col>
-      <b-col>
+      <b-col lg="5">
         <MonacoEditor
           class="output"
           v-bind:value="`\n${output}`"
@@ -72,7 +96,9 @@
             scrollBeyondLastLine: false, 
             lineNumbers: false,
             renderLineHighlight: false, 
-            wordWrap: 'on'
+            wordWrap: 'on',
+            automaticLayout: true
+
           }"
         />
       </b-col>
@@ -109,11 +135,17 @@ export default {
     }
   },
   methods: {
+    validation() {
+      const examplesClassesRegex = /^[A-z]+(\s[A-z]+)*$/;
+      return examplesClassesRegex.test(this.examplesClasses);
+    },
+    copyURL() {
+      this.$copyText(this.url);
+      this.showCopyTooltip = true;
+      this.copyText = "Copied!";
+    },
     codeChange() {
       socket.emit("send code", { room: this.room, newCode: this.code });
-    },
-    onCopy() {
-      this.copyText = "Copied!";
     },
     switchTheme() {
       this.darkMode = !this.darkMode;
@@ -157,7 +189,6 @@ export default {
           this.output = this.cleanOutput(response.data.out);
         })
         .catch(error => {
-          console.log("run");
           try {
             if (error.response.data.err === "Java execution timed out") {
               this.output =
@@ -185,7 +216,6 @@ export default {
     socket.emit("leave room", { room: this.room });
   },
   mounted() {
-    console.log(window.location.pathname.split("/")[2]);
     if (localStorage.darkMode && localStorage.darkMode == "true") {
       this.darkMode = true;
     }
@@ -206,10 +236,11 @@ export default {
 
   data() {
     return {
-      copyText: `Copy`,
+      showCopyTooltip: false,
+      copyText: `Copy URL`,
       url: `fundiescollab.com${window.location.pathname}`,
       room: window.location.pathname.split("/")[2],
-      examplesClasses: "ExamplesFoo",
+      examplesClasses: "Examples",
       compiling: false,
       darkMode: false,
       output: `Press the green "Run" button to run and compile your code.\n\nCode in this room is only saved for up to 7 days after the last edit, so remember to download your code when you're done!`,
@@ -233,7 +264,7 @@ class Foo {
   } 
 } 
 
-class ExamplesFoo { 
+class Examples { 
   void testFoo(Tester t) {
     t.checkExpect(new Foo(1, 2).add(), 3); 
     t.checkExpect(new Foo(4, 56).add(), 60);
@@ -249,25 +280,23 @@ class ExamplesFoo {
 </script>
 
 <style>
-#app {
-  width: 100%;
-  height: 100%;
-}
 #header {
   height: 70px;
 }
 
 #room {
-  overflow: hidden;
+  overflow-x: hidden;
 }
-
+.icon {
+  margin: 16px;
+}
 .icon:hover {
   cursor: pointer;
 }
 
 .icon-bar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 .side {
@@ -277,7 +306,6 @@ class ExamplesFoo {
 }
 .editor {
   height: calc(100vh - 70px);
-  width: 60vw;
 }
 .output {
   height: calc(100vh - 70px);
