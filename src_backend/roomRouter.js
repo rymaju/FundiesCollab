@@ -5,12 +5,10 @@ router.route('/:id').get(async (req, res) => {
   const roomId = req.params.id
 
   const containsRoom = (await roomData.get(roomId)) !== undefined
-
-  if (containsRoom) {
-    res.send(200).end()
-  } else {
-    res.send(400).end()
-  }
+  res
+    .status(200)
+    .json({ exists: containsRoom })
+    .end()
 })
 
 module.exports = router

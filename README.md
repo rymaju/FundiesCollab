@@ -133,11 +133,13 @@ Something terribly terribly wrong has occurred. Shoot me an email so I can fix i
 
 #### `200 OK`
 
-The room exists.
+Returns a json body describing whether the room exists or does not exist
 
-### `400 Bad Request`
-
-The room does not exist
+```json
+{
+  exists: BOOLEAN
+}
+```
 
 #### `500 Internal Server Error`
 
