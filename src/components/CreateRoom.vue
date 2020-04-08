@@ -1,5 +1,13 @@
 <template>
   <b-overlay :show="creatingRoom" rounded="lg" spinner-variant="primary">
+    <b-alert
+      v-model="showError"
+      class="position-fixed fixed-top m-2"
+      fade
+      style="z-index: 2000;"
+      variant="danger"
+      dismissible
+    >Oops, we encountered an error connecting to our servers. Please wait and try again later.</b-alert>
     <b-container class="form-container">
       <b-form class="create-room" v-on:submit.prevent="createRoom">
         <h2>Create a room</h2>
@@ -33,6 +41,7 @@ export default {
     return {
       creatingRoom: false,
       isUniqueRoom: true,
+      showError: false,
       room: this.generateHaiku()
     };
   },
@@ -70,16 +79,27 @@ export default {
             ? "https://fundiescollab.com/api/room/" + this.room
             : "http://localhost:5000/api/room/" + this.room
         )
-        .then(() => {
-          this.isUniqueRoom = false;
-        })
-        .catch(err => {
-          if (err.response.status === 400) {
-            this.$router.push(`room/${this.room.trim()}`);
+        .then(response => {
+          if (response.data.exists) {
+            this.isUniqueRoom = false;
+            this.creatingRoom = false;
+          } else {
+            this.$router.push(
+              `room/${this.room.trim()}`,
+              () => {
+                this.creatingRoom = false;
+              },
+              () => {
+                this.creatingRoom = false;
+                this.showError = true;
+              }
+            );
           }
         })
-        .finally(() => {
+        .catch(err => {
+          console.error(err);
           this.creatingRoom = false;
+          this.showError = true;
         });
     }
   }

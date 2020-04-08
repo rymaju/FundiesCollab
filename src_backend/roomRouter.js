@@ -6,11 +6,10 @@ router.route('/:id').get(async (req, res) => {
 
   const containsRoom = (await roomData.get(roomId)) !== undefined
 
-  if (containsRoom) {
-    res.send(200).end()
-  } else {
-    res.send(400).end()
-  }
+  res
+    .send(200)
+    .json({ exists: containsRoom })
+    .end()
 })
 
 module.exports = router
