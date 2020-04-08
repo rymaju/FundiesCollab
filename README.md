@@ -16,6 +16,14 @@ Data for rooms is stored on the server in a Redis database. We chose Redis for i
 
 If youre interested in the security aspects, see the [Security](#Security) section below.
 
+## Contributing
+
+If you're interested in this project and want to add something new, just fork the repository and make a pull request to merge your changes into master! If you are resolving an existing issue then make sure to tag it in your PR, or else if youre fixing an issue that does not already exist then please make an issue and assign it to yourself first!
+
+Unfortunately due to a quirk of my DigitalOcean droplet's computing power, the `dist` folder must be precompiled and saved in master. This is because the droplet will run out of memory before `vue-cli` can build `dist`. For this reason, `dist` will be included when you pull the repo and will be tracked when you push changes.
+
+I am working on a CI/CD solution so that master autodeploys to a production branch but until then please bear with this inconvenience.
+
 ## Run Locally
 
 ### Frontend & Backend
