@@ -7,7 +7,7 @@ router.route('/:id').get(async (req, res) => {
   const containsRoom = (await roomData.get(roomId)) !== undefined
   console.log(containsRoom)
   res
-    .send(200)
+    .status(200)
     .json({ exists: containsRoom })
     .end()
 })
