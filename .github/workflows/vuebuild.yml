@@ -28,7 +28,7 @@ jobs:
     - run: npm run build
 
     - name: Commit changes
-      uses: EndBug/add-and-commit@v4
+      uses: EndBug/add-and-commit@v3.1.0
       with:
         author_name: Ryan Jung
         author_email: ryan.matthew.jung@gmail.com
