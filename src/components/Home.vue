@@ -2,9 +2,10 @@
   <div>
     <b-jumbotron>
       <b-container>
-        <h1 class="display-3 mb-0" style="height:100px">
-          FundiesCollab
-          <b-img lazy style="width:90px; padding-bottom:20px;" src="/check-plus.png" />
+        <h1 class="display-3 mb-0" style="height:fit-content">
+          Fundies
+          <wbr />Collab
+          <b-img lazy style="max-width:90px; padding-bottom:20px;" src="/check-plus.png" />
         </h1>
         <p class="lead">
           Collaborative Real-Time Coding in Java using the Fundies 2 Tester and Image
