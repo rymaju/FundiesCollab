@@ -79,6 +79,7 @@ export default {
 
   methods: {
     submitWithFirebase() {
+      this.waitingForAuth = true;
       this.error = "";
       firebase
         .auth()
@@ -93,6 +94,8 @@ export default {
             }
           },
           err => {
+            this.waitingForAuth = false;
+
             this.error = `Oops! ${err.message}`;
           }
         );
