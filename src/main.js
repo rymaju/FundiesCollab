@@ -50,7 +50,6 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresUnAuth = to.matched.some(record => record.meta.requiresUnAuth)
   const roomId = to.params.id
-  console.log(to.params)
   if (requiresAuth && !currentUser) {
     if (roomId) {
       next(`/login?room=${roomId}`)

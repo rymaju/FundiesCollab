@@ -68,7 +68,8 @@ export default {
     return {
       email: "",
       password: "",
-      error: ""
+      error: "",
+      waitingForAuth: false
     };
   },
   computed: {
@@ -86,7 +87,7 @@ export default {
         .createUserWithEmailAndPassword(this.email, this.password)
         .then(
           () => {
-            console.log(this.$route.query);
+
             if (this.$route.query.room) {
               this.$router.push(`/room/${this.$route.query.room}`);
             } else {

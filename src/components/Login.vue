@@ -75,7 +75,6 @@ export default {
         .signInWithEmailAndPassword(this.email, this.password)
         .then(
           () => {
-            console.log(this.$route.query);
             if (this.$route.query.room) {
               this.$router.push(`/room/${this.$route.query.room}`);
             } else {
