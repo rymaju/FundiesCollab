@@ -1,7 +1,6 @@
 // vue.config.js
 const MonacoEditorPlugin = require('monaco-editor-webpack-plugin')
 
-console.log('runs')
 module.exports = {
   configureWebpack: {
     plugins: [
