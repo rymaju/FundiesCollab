@@ -14,6 +14,8 @@ Code is sent as a `POST` request from the user's browser to the backend when the
 
 Data for rooms is stored on the server in a Redis database. We chose Redis for its fast read/write operations and expiration features.
 
+Users need to sign up or login to using an email & password supported by Firebase. You also need a Firebase authorization token to use the compile API endpoint.
+
 If youre interested in the security aspects, see the [Security](#Security) section below.
 
 ## Contributing
@@ -43,6 +45,8 @@ To start the server, run `pm2 start ecosystem.config.js`.
 
 This offers the advantage of being able to see metrics by using the commands `pm2 info server` or `pm2 monit`.
 
+There should be a file called `firebase.config.example.js`, copy that file, rename it `firebase.config.js`, and fill it in with your own Firebase config. You can get a Firebase config at [firebase.google.com](https://firebase.google.com/), just create an account and follow the instructions.
+
 ### Frontend
 
 If you just want to run and test the frontend, run `npm run serve` which will start the frontend on `http://localhost:8081`.
@@ -52,6 +56,10 @@ If you just want to run and test the frontend, run `npm run serve` which will st
 The backend can be accessed at `fundiescollab.com/api/`.
 
 ### `POST fundiescollab.com/api/compile/java`
+
+Headers:
+`Authorization: Bearer <FIREBASE_ID_TOKEN>`
+Requires a firebase ID token matching the config used for the frontend.
 
 Request Body:
 
@@ -130,6 +138,10 @@ Many things can lead to a bad request error. Check the error message sent in the
 #### `429 Too Many Requests`
 
 The API is rate limited to 20 requests every 10 minutes. If for some reason you need to spam compilation faster than that, then either something is wrong with the way you code or you're trying to break my server - both call for some serious self reflection.
+
+#### `401 Unauthorized`
+
+Every request requires an "Authorization" header with a string "Bearer " followed by a valid Firebase ID JWT.
 
 #### `500 Internal Server Error`
 

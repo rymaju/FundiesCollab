@@ -14,9 +14,19 @@
         <hr />
 
         <p>Share code, pair program, and test as you go.</p>
-        <router-link to="/room">
-          <b-button size="lg" variant="primary">Start Coding</b-button>
-        </router-link>
+
+        <div>
+          <router-link to="/room">
+            <b-button size="lg" variant="primary">Start Coding</b-button>
+          </router-link>
+        </div>
+
+        <div class="mt-2">
+          <small v-if="this.user">
+            Signed in as {{this.user.email}}. Click here to
+            <b-link @click="logout">sign out</b-link>.
+          </small>
+        </div>
       </b-container>
     </b-jumbotron>
     <b-container>
@@ -80,8 +90,24 @@
 
 
 <script>
+import firebase from "firebase";
 export default {
-  name: "Home"
+  name: "Home",
+  data: () => {
+    return {
+      user: firebase.auth().currentUser
+    };
+  },
+  methods: {
+    logout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          this.user = firebase.auth().currentUser;
+        });
+    }
+  }
 };
 </script>
 

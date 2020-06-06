@@ -11,6 +11,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-rate-limit": "^5.1.1",
+    "firebase": "^7.15.0",
+    "firebase-admin": "^8.12.1",
     "haikunator": "^2.1.2",
     "helmet": "^3.21.3",
     "http-errors": "^1.7.3",

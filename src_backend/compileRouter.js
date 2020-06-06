@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const pm2io = require('@pm2/io')
 
+const authMiddleware = require('./authMiddleware')
 const compileAndRun = require('./compileAndRun')
 const validateInput = require('./validateInput')
 
@@ -55,7 +56,7 @@ function handleSuccessfulCompile (res, output, roomId) {
     .end()
 }
 
-router.route('/java').post(async (req, res) => {
+router.route('/java').post(authMiddleware, async (req, res) => {
   const hrStart = process.hrtime()
 
   try {
@@ -76,7 +77,7 @@ router.route('/java').post(async (req, res) => {
   }
 })
 
-router.route('/racket').post((req, res) => {
+router.route('/racket').post(authMiddleware, (req, res) => {
   res.send('Not implemented yet!')
 })
 
