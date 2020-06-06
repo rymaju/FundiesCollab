@@ -16,7 +16,7 @@
           id="input-group-1"
           label="Room ID:"
           label-for="input-1"
-          description="Your room ID is a unique indentifier that will allow you to share your work just by sharing the link"
+          description="Your room ID is a unique identifier that will allow you to share your work just by sharing the link"
         >
           <b-form-input v-on:input="onChange" v-model="room" :state="validation()" />
           <b-form-invalid-feedback :state="validation()">{{validationErrors}}</b-form-invalid-feedback>

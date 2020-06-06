@@ -108,6 +108,7 @@
 
 <script>
 import MonacoEditor from "vue-monaco";
+import firebase from "firebase";
 import axios from "axios";
 const io = require("socket.io-client");
 const socket = io();
@@ -173,42 +174,58 @@ export default {
       socket.emit("send compile", { room: this.room });
       this.compiling = true;
       this.output = "Running code...";
-      axios
-        .post(
-          process.env.NODE_ENV === "production"
-            ? "https://fundiescollab.com/api/compile/java"
-            : "http://localhost:5000/api/compile/java",
-          {
-            fileName: "Test.java",
-            examplesClasses: this.examplesClasses.split(" "),
-            javaCode: this.code,
-            roomId: this.room
-          }
-        )
-        .then(response => {
-          this.output = this.cleanOutput(response.data.out);
+      firebase
+        .auth()
+        .currentUser.getIdToken(true)
+        .then(token => {
+          axios
+            .post(
+              process.env.NODE_ENV === "production"
+                ? "https://fundiescollab.com/api/compile/java"
+                : "http://localhost:5000/api/compile/java",
+              {
+                fileName: "Test.java",
+                examplesClasses: this.examplesClasses.split(" "),
+                javaCode: this.code,
+                roomId: this.room
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            )
+            .then(response => {
+              this.output = this.cleanOutput(response.data.out);
+            })
+            .catch(error => {
+              try {
+                if (error.response.data.err === "Java execution timed out") {
+                  this.output =
+                    "Your code took way too long to execute! Look for infinite loops or recursion and try again.";
+                } else if (error.response.status === 500) {
+                  this.output =
+                    "Yikes, something went wrong with our servers. Sorry! Email me at ryan.matthew.jung@gmail.com to let me know there's a problem. In the meantime, you can download your code and work offline.";
+                } else {
+                  this.output =
+                    "Oops! There was a problem processing your request. Please wait 60 seconds and try again.";
+                }
+              } catch (err) {
+                this.output =
+                  "We cant seem to connect to our servers, sorry! In the meantime, you can download your code and work offline.";
+              }
+              console.log(this.output);
+            })
+            .finally(() => {
+              this.compiling = false;
+              socket.emit("send output", { room: this.room, out: this.output });
+            });
         })
-        .catch(error => {
-          try {
-            if (error.response.data.err === "Java execution timed out") {
-              this.output =
-                "Your code took way too long to execute! Look for infinite loops or recursion and try again.";
-            } else if (error.response.status === 500) {
-              this.output =
-                "Yikes, something went wrong with our servers. Sorry! Email me at ryan.matthew.jung@gmail.com to let me know there's a problem. In the meantime, you can download your code and work offline.";
-            } else {
-              this.output =
-                "Oops! There was a problem processing your request. Please wait 60 seconds and try again.";
-            }
-          } catch (err) {
-            this.output =
-              "We cant seem to connect to our servers, sorry! In the meantime, you can download your code and work offline.";
-          }
-          console.log(this.output);
-        })
-        .finally(() => {
-          this.compiling = false;
-          socket.emit("send output", { room: this.room, out: this.output });
+        .catch(err => {
+          console.log(err);
+          this.output =
+            "Oops! There was a problem processing your request related to authentication. Try reloading the page and try again.";
         });
     }
   },
