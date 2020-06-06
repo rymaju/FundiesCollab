@@ -59,7 +59,9 @@ router.beforeEach((to, from, next) => {
   }
 })
 
-new Vue({
-  render: h => h(App),
-  router
-}).$mount('#app')
+firebase.auth().onAuthStateChanged(() => {
+  new Vue({
+    render: h => h(App),
+    router
+  }).$mount('#app')
+})

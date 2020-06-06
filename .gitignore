@@ -6,3 +6,4 @@ dist
 *.log
 /room*
 firebase.config.js
+notes.txt
