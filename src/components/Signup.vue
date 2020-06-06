@@ -80,6 +80,16 @@ export default {
 
   methods: {
     submitWithFirebase() {
+      if (this.password.length < 8) {
+        this.error = `Woah! Your password cant be less than 8 characters. Honestly, even 8 is pretty unsafe. You really want something 10+ characters long. Try a phrase like "Correct_Horse_Battery_Staple"`;
+        return;
+      }
+
+      if (this.password === "Correct_Horse_Battery_Staple") {
+        this.error =
+          "Seriously? No, your password cant be Correct_Horse_Battery_Staple. Please be more creative.";
+        return;
+      }
       this.waitingForAuth = true;
       this.error = "";
       firebase
@@ -87,7 +97,6 @@ export default {
         .createUserWithEmailAndPassword(this.email, this.password)
         .then(
           () => {
-
             if (this.$route.query.room) {
               this.$router.push(`/room/${this.$route.query.room}`);
             } else {

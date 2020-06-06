@@ -68,6 +68,8 @@ export default {
   },
   methods: {
     submitWithFirebase() {
+      
+
       this.waitingForAuth = true;
       this.error = "";
       firebase
