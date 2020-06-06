@@ -49,9 +49,14 @@ router.beforeEach((to, from, next) => {
   const currentUser = firebase.auth().currentUser
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresUnAuth = to.matched.some(record => record.meta.requiresUnAuth)
-
+  const roomId = to.params.id
+  console.log(to.params)
   if (requiresAuth && !currentUser) {
-    next('/login')
+    if (roomId) {
+      next(`/login?room=${roomId}`)
+    } else {
+      next('/login')
+    }
   } else if (requiresUnAuth && currentUser) {
     next('/')
   } else {
