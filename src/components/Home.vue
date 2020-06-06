@@ -15,17 +15,9 @@
 
         <p>Share code, pair program, and test as you go.</p>
 
-        <div v-if="this.user">
+        <div>
           <router-link to="/room">
             <b-button size="lg" variant="primary">Start Coding</b-button>
-          </router-link>
-        </div>
-        <div v-else>
-          <router-link to="/signup">
-            <b-button size="lg" variant="primary" class="mr-1">Signup</b-button>
-          </router-link>
-          <router-link to="/login">
-            <b-button size="lg" variant="primary" class="ml-1">Login</b-button>
           </router-link>
         </div>
 
