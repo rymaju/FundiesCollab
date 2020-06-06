@@ -81,7 +81,7 @@ export default {
   methods: {
     submitWithFirebase() {
       if (this.password.length < 8) {
-        this.error = `Woah! Your password cant be less than 8 characters. Honestly, even 8 is pretty unsafe. You really want something 10+ characters long. Try a phrase like "Correct_Horse_Battery_Staple"`;
+        this.error = `Woah! Your password cant be less than 8 characters. Honestly, even 8 is pretty unsafe. You really want something 10+ characters long. Try a phrase like "Correct_Horse_Battery_Staple".`;
         return;
       }
 
