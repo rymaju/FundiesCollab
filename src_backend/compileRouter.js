@@ -78,7 +78,7 @@ router.route('/java').post(authMiddleware, async (req, res) => {
   }
 })
 
-router.route('/racket').post(authMiddleware, (req, res) => {
+router.route('/racket').post(authMiddleware, async (req, res) => {
   const hrStart = process.hrtime()
 
   try {
