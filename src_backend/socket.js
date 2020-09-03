@@ -15,7 +15,7 @@ const counter = pm2io.counter({
  */
 function socketSetup (server) {
   const io = socketIO(server)
-
+  console.log('setup socket server')
   io.on('connection', socket => {
     counter.inc()
 
