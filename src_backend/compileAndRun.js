@@ -25,7 +25,7 @@ async function compileAndRun (fileName, examplesClasses, code, roomDir, inJava) 
   await writeFile(filePath, code).catch(handleWriteFileError)
 
 
-  const compileCommand = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName}`:
+  const compileCommand = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName}`
   const runCommand = `java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
 
   const command = inJava ? `${compileCommand} && ${runCommand}` 
