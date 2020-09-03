@@ -6,7 +6,7 @@ const compileAndRun = require('./compileAndRun')
 const validateInput = require('./validateInput')
 
 const histogram = pm2io.histogram({
-  name: 'Mean Java Latency',
+  name: 'Mean Latency',
   measurement: 'mean'
 })
 
@@ -60,14 +60,15 @@ router.route('/java').post(authMiddleware, async (req, res) => {
   const hrStart = process.hrtime()
 
   try {
-    const { fileName, examplesClasses, javaCode, roomId } = await validateInput(
-      req
+    const { fileName, examplesClasses, code, roomId } = await validateInput(
+      req, true
     )
     const output = await compileAndRun(
       fileName,
       examplesClasses,
-      javaCode,
-      roomId
+      code,
+      roomId,
+      true
     )
     handleSuccessfulCompile(res, output, roomId)
   } catch (error) {
@@ -77,8 +78,26 @@ router.route('/java').post(authMiddleware, async (req, res) => {
   }
 })
 
-router.route('/racket').post(authMiddleware, (req, res) => {
-  res.send('Not implemented yet!')
+router.route('/racket').post(authMiddleware, async (req, res) => {
+  const hrStart = process.hrtime()
+
+  try {
+    const { fileName, _, code, roomId } = await validateInput(
+      req, false
+    )
+    const output = await compileAndRun(
+      fileName,
+      '',
+      code,
+      roomId,
+      false
+    )
+    handleSuccessfulCompile(res, output, roomId)
+  } catch (error) {
+    handleHttpError(res, error)
+  } finally {
+    endTimer(hrStart)
+  }
 })
 
 module.exports = router
