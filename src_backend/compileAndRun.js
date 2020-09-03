@@ -14,19 +14,22 @@ const executionTimeoutMs = 15000 // 15 second timeout
  * Compiles and runs the given java file through its example classes, or on rejection returns an http-error
  * @param {string} fileName the full file name of the java file
  * @param {string} examplesClasses a space delimited list of example classes to be used for the Tester library
- * @param {string} javaCode the java code to be compiled
+ * @param {string} code the java code to be compiled
  * @param {string} roomDir the room directory
+ * @param {boolean} inJava whether the code is in Java
  * @returns {Promise<string | HttpError>} the output of running the java code including runtime and compile time errors, or nothing on timeout
  */
-async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
+async function compileAndRun (fileName, examplesClasses, code, roomDir, inJava) {
   await mkdir(roomDir).catch(handleMakeDirectoryError)
   const filePath = roomDir + '/' + fileName
-  await writeFile(filePath, javaCode).catch(handleWriteFileError)
+  await writeFile(filePath, code).catch(handleWriteFileError)
 
-  const compileCommand = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName}`
+
+  const compileCommand = `javac -cp .:tester.jar:javalib.jar -d ./${roomDir} ./${roomDir}/${fileName}`:
   const runCommand = `java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
 
-  const command = `${compileCommand} && ${runCommand}`
+  const command = inJava ? `${compileCommand} && ${runCommand}` 
+                         : `racket ./${roomDir} ./${roomDir}/${fileName}`
 
   try {
     const { stdout } = await execFile(
@@ -46,24 +49,41 @@ async function compileAndRun (fileName, examplesClasses, javaCode, roomDir) {
 /**
  * Return arguments to use for running docker for a given roomDir
  * @param roomDir the room directory for this run
+ * @param inJava whether dockerArguments are for Java
  * @returns {string[]} docker arguments
  */
-function dockerArguments (roomDir) {
-  return [
-    'run',
-    '-t',
-    '--rm',
-    '--workdir=/app',
-    '--volume',
-    `${appRoot}/${roomDir}:/app/${roomDir}`,
-    '--volume',
-    `${appRoot}/tester.jar:/app/tester.jar:ro`,
-    '--volume',
-    `${appRoot}/javalib.jar:/app/javalib.jar:ro`,
-    'openjdk:11-jdk',
-    '/bin/bash',
-    '-c'
-  ]
+function dockerArguments (roomDir, inJava) {
+
+  if(inJava) {
+    return [
+      'run',
+      '-t',
+      '--rm',
+      '--workdir=/app',
+      '--volume',
+      `${appRoot}/${roomDir}:/app/${roomDir}`,
+      '--volume',
+      `${appRoot}/tester.jar:/app/tester.jar:ro`,
+      '--volume',
+      `${appRoot}/javalib.jar:/app/javalib.jar:ro`,
+      'openjdk:11-jdk',
+      '/bin/bash',
+      '-c'
+    ]
+  } else {
+    return [
+      'run',
+      '-t',
+      '--rm',
+      '--workdir=/app',
+      '--volume',
+      `${appRoot}/${roomDir}:/app/${roomDir}`,
+      'racket/racket:7.8',
+      '/bin/bash',
+      '-c'
+    ]
+  }
+  
 }
 
 /**
