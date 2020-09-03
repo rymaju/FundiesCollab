@@ -2,32 +2,35 @@ const createError = require('http-errors')
 
 const isInvalidFileName = require('./validation/isInvalidFileName')
 const isInvalidExamplesClasses = require('./validation/isInvalidExamplesClasses')
-const isInvalidJavaCode = require('./validation/isInvalidJavaCode')
+const isInvalidCode = require('./validation/isInvalidJavaCode')
 const isInvalidRoomId = require('./validation/isInvalidRoomId')
 
 /**
  * Validates the request body parameters and returns the validated body, or on rejection returns an http-error
  * @param {Request<ParamsDictionary, any, any>} req request object
+ * @param {boolean} inJava whether the request is for a Java compilation
  * @returns {{fileName : string, examplesClasses : string[], javaCode : string, roomId : string}|HttpError>} the validated request body parameters
  */
-function validateInput (req) {
+function validateInput (req, inJava) {
   const fileName = req.body.fileName
   const examplesClasses = req.body.examplesClasses
-  const javaCode = req.body.javaCode
+  const code = req.body.code
   const roomId = req.body.roomId
 
-  if (isInvalidFileName(fileName)) {
+  //TODO: add validation for Racket
+  
+  if (inJava && isInvalidFileName(fileName)) {
     throw createError(
       400,
       `Invalid file name: "${fileName}". Must be a valid .java file name and must not be too long.`
     )
-  } else if (isInvalidExamplesClasses(examplesClasses)) {
+  } else if (inJava && isInvalidExamplesClasses(examplesClasses)) {
     throw createError(
       400,
       `Invalid examples classes: ${examplesClasses} must be an array of valid Java class names and must not be too long.`
     )
-  } else if (isInvalidJavaCode(javaCode)) {
-    throw createError(400, 'Invalid java code. Submitted code was too long.')
+  } else if (isInvalidCode(code)) {
+    throw createError(400, 'Invalid code. Submitted code was too long.')
   } else if (isInvalidRoomId(roomId)) {
     throw createError(
       400,

@@ -27,7 +27,17 @@
           />
 
           <b-modal id="modal-1" title="Editor Settings" hide-footer>
+            
+
+            <b-check v-model="inJava" switch>
+              <label>Racket/Java mode</label>
+            </b-check>
+            <b-check v-model="darkMode" switch>
+              <label>Dark mode</label>
+            </b-check>
+
             <b-form-group
+              v-if="inJava"
               id="input-group-1"
               label="Example Classes"
               description="A space delimited list of example classes to compile"
@@ -38,10 +48,6 @@
               >Must be a space delimited string of classes</b-form-invalid-feedback>
               <b-form-valid-feedback :state="validation()">Looks good!</b-form-valid-feedback>
             </b-form-group>
-
-            <b-check v-model="darkMode" switch>
-              <label>Dark mode</label>
-            </b-check>
           </b-modal>
 
           <b-icon
@@ -74,9 +80,22 @@
     <b-row no-gutters style="max-width: 100vw; width: 100vw; max-height: calc(100vh - 70px);">
       <b-col lg="7">
         <MonacoEditor
+          v-if="inJava"
           class="editor"
-          v-model="code"
+          v-model="javaCode"
           language="java"
+          v-bind:theme="theme"
+          v-bind:options="{ 
+            scrollBeyondLastLine: false, 
+            wordWrap: 'on',
+            automaticLayout: true}"
+          @change="codeChange"
+        />
+        <MonacoEditor
+          v-else
+          class="editor"
+          v-model="racketCode"
+          language="scheme"
           v-bind:theme="theme"
           v-bind:options="{ 
             scrollBeyondLastLine: false, 
@@ -180,13 +199,13 @@ export default {
         .then(token => {
           axios
             .post(
-              process.env.NODE_ENV === "production"
+              this.inJava
                 ? "https://fundiescollab.com/api/compile/java"
-                : "http://localhost:5000/api/compile/java",
+                : "https://fundiescollab.com/api/compile/racket",
               {
-                fileName: "Test.java",
+                fileName: this.inJava ? "Test.java" : "test.rkt",
                 examplesClasses: this.examplesClasses.split(" "),
-                javaCode: this.code,
+                code: this.inJava ? this.javaCode : this.racketCode,
                 roomId: this.room
               },
               {
@@ -253,6 +272,7 @@ export default {
 
   data() {
     return {
+      inJava: false,
       showCopyTooltip: false,
       copyText: `Copy URL`,
       url: `fundiescollab.com${window.location.pathname}`,
@@ -261,7 +281,16 @@ export default {
       compiling: false,
       darkMode: false,
       output: `Press the green "Run" button to run and compile your code.\n\nCode in this room is only saved for up to 7 days after the last edit, so remember to download your code when you're done!`,
-      code: `import tester.Tester; 
+      racketCode: `#lang racket
+(define (fib n)
+  (cond
+    [(<= n 2) 1]
+    [else (+ (fib (- n 1)) (fib (- n 2)))]))
+      
+(fib 10)
+      
+      `,
+      javaCode: `import tester.Tester; 
 import javalib.worldimages.*; 
 import java.awt.Color; 
 
