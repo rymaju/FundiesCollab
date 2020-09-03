@@ -60,13 +60,13 @@ router.route('/java').post(authMiddleware, async (req, res) => {
   const hrStart = process.hrtime()
 
   try {
-    const { fileName, examplesClasses, javaCode, roomId } = await validateInput(
+    const { fileName, examplesClasses, code, roomId } = await validateInput(
       req, true
     )
     const output = await compileAndRun(
       fileName,
       examplesClasses,
-      javaCode,
+      code,
       roomId,
       true
     )
@@ -82,13 +82,13 @@ router.route('/racket').post(authMiddleware, async (req, res) => {
   const hrStart = process.hrtime()
 
   try {
-    const { fileName, _, racketCode, roomId } = await validateInput(
+    const { fileName, _, code, roomId } = await validateInput(
       req, false
     )
     const output = await compileAndRun(
       fileName,
       '',
-      racketCode,
+      code,
       roomId,
       false
     )
