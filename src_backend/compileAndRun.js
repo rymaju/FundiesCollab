@@ -34,7 +34,7 @@ async function compileAndRun (fileName, examplesClasses, code, roomDir, inJava) 
   try {
     const { stdout } = await execFile(
       'docker',
-      [...dockerArguments(roomDir), command],
+      [...dockerArguments(roomDir, inJava), command],
       { timeout: executionTimeoutMs }
     )
     console.log('file was compiled and run successfully')
@@ -48,8 +48,8 @@ async function compileAndRun (fileName, examplesClasses, code, roomDir, inJava) 
 
 /**
  * Return arguments to use for running docker for a given roomDir
- * @param roomDir the room directory for this run
- * @param inJava whether dockerArguments are for Java
+ * @param {string} roomDir the room directory for this run
+ * @param {boolean} inJava whether dockerArguments are for Java
  * @returns {string[]} docker arguments
  */
 function dockerArguments (roomDir, inJava) {
