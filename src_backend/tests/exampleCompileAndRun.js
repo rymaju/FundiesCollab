@@ -1,17 +1,26 @@
 const fileName = 'Huffman.java'
 const examplesClasses = ['ExamplesHuffman']
 const javaCode = require('./exampleJavaCode')
+const racketCode = require('./exampleRacketCode')
 
 const compileAndRun = require('../compileAndRun')
 
 // Run this file from the root directory:
 // node src_backend/tests/exampleCompileAndRun.js
 
-console.time('exampleCompileAndRun')
+console.time('exampleCompileAndRunJava')
 compileAndRun(fileName, examplesClasses, javaCode, 'room-huffman')
   .then(out => {
     console.log('output:\n' + out)
-    console.timeEnd('exampleCompileAndRun')
+    console.timeEnd('exampleCompileAndRunJava')
+  })
+  .catch(err => console.log(err))
+
+console.time('exampleCompileAndRunRacket')
+compileAndRun(fileName, examplesClasses, racketCode, 'room-racket')
+  .then(out => {
+    console.log('output:\n' + out)
+    console.timeEnd('exampleCompileAndRunRacket')
   })
   .catch(err => console.log(err))
 /*
