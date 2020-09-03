@@ -29,7 +29,7 @@ async function compileAndRun (fileName, examplesClasses, code, roomDir, inJava) 
   const runCommand = `java -classpath ./${roomDir}:tester.jar:javalib.jar tester.Main ${examplesClasses}`
 
   const command = inJava ? `${compileCommand} && ${runCommand}` 
-                         : `racket ./${roomDir} ./${roomDir}/${fileName}`
+                         : `racket ./${roomDir}/${fileName}`
 
   try {
     const { stdout } = await execFile(

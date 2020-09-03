@@ -8,7 +8,7 @@ const compileAndRun = require('../compileAndRun')
 // node src_backend/tests/exampleCompileAndRun.js
 
 console.time('exampleCompileAndRunJava')
-compileAndRun('Huffman.java', examplesClasses, javaCode, 'room-huffman')
+compileAndRun('Huffman.java', examplesClasses, javaCode, 'room-huffman', true)
   .then(out => {
     console.log('output:\n' + out)
     console.timeEnd('exampleCompileAndRunJava')
@@ -16,7 +16,7 @@ compileAndRun('Huffman.java', examplesClasses, javaCode, 'room-huffman')
   .catch(err => console.log(err))
 
 console.time('exampleCompileAndRunRacket')
-compileAndRun('test.rkt', examplesClasses, racketCode, 'room-racket')
+compileAndRun('test.rkt', examplesClasses, racketCode, 'room-racket', false)
   .then(out => {
     console.log('output:\n' + out)
     console.timeEnd('exampleCompileAndRunRacket')
