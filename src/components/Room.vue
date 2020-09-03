@@ -165,14 +165,14 @@ export default {
       this.copyText = "Copied!";
     },
     codeChange() {
-      socket.emit("send code", { room: this.room, newCode: this.code });
+      socket.emit("send code", { room: this.room, newCode: this.inJava ? this.javaCode : this.racketCode });
     },
     switchTheme() {
       this.darkMode = !this.darkMode;
       localStorage.darkMode = this.darkMode;
     },
     download() {
-      fileDownload(this.code, this.room + ".java");
+      fileDownload(this.inJava ? this.javaCode : this.racketCode, this.room + this.inJava ? ".java" : ".rkt");
     },
     cleanOutput(output) {
       const junk = `\tat java`;
@@ -258,7 +258,11 @@ export default {
     socket.emit("join room", { room: this.room });
 
     socket.on("sync code", payload => {
-      this.code = payload.newCode;
+      if(this.inJava) {
+        this.javaCode = payload.newCode;
+      } else {
+        this.racketCode = payload.newCode;
+      }
     });
     socket.on("sync compile", () => {
       this.compiling = true;
