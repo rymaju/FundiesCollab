@@ -1,4 +1,3 @@
-const fileName = 'Huffman.java'
 const examplesClasses = ['ExamplesHuffman']
 const javaCode = require('./exampleJavaCode')
 const racketCode = require('./exampleRacketCode')
@@ -9,7 +8,7 @@ const compileAndRun = require('../compileAndRun')
 // node src_backend/tests/exampleCompileAndRun.js
 
 console.time('exampleCompileAndRunJava')
-compileAndRun(fileName, examplesClasses, javaCode, 'room-huffman')
+compileAndRun('Huffman.java', examplesClasses, javaCode, 'room-huffman')
   .then(out => {
     console.log('output:\n' + out)
     console.timeEnd('exampleCompileAndRunJava')
@@ -17,7 +16,7 @@ compileAndRun(fileName, examplesClasses, javaCode, 'room-huffman')
   .catch(err => console.log(err))
 
 console.time('exampleCompileAndRunRacket')
-compileAndRun(fileName, examplesClasses, racketCode, 'room-racket')
+compileAndRun('test.rkt', examplesClasses, racketCode, 'room-racket')
   .then(out => {
     console.log('output:\n' + out)
     console.timeEnd('exampleCompileAndRunRacket')
