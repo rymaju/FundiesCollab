@@ -9,7 +9,7 @@ const isInvalidRoomId = require('./validation/isInvalidRoomId')
  * Validates the request body parameters and returns the validated body, or on rejection returns an http-error
  * @param {Request<ParamsDictionary, any, any>} req request object
  * @param {boolean} inJava whether the request is for a Java compilation
- * @returns {{fileName : string, examplesClasses : string[], javaCode : string, roomId : string}|HttpError>} the validated request body parameters
+ * @returns {{fileName : string, examplesClasses : string[], code : string, roomId : string}|HttpError>} the validated request body parameters
  */
 function validateInput (req, inJava) {
   const fileName = req.body.fileName
@@ -40,7 +40,7 @@ function validateInput (req, inJava) {
     const validatedBody = {
       fileName,
       examplesClasses: examplesClasses.join(' '),
-      javaCode,
+      code,
       roomId
     }
 
