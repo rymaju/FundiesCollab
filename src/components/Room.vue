@@ -130,7 +130,7 @@ import MonacoEditor from "vue-monaco";
 import firebase from "firebase";
 import axios from "axios";
 const io = require("socket.io-client");
-const socket = io();
+const socket = io.connect('https://fundiescollab.com', {secure: true});
 const fileDownload = require("js-file-download");
 
 export default {
