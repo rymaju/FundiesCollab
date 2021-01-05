@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@pm2/io": "^4.3.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.8.0",
     "core-js": "^3.6.4",
