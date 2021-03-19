@@ -1,3 +1,7 @@
+# ARCHIVED
+
+This was a super fun project but I cant afford to keep paying for the domain and the server to keep this thing running! Of course feel free to look around the code and email me if you're curious about the project!
+
 # FundiesCollab
 
 Collaborative Real-Time Coding in Java using the Fundies 2 Tester and Image libraries.
